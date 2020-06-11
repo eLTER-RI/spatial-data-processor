@@ -15,6 +15,7 @@ library(rgdal)
 #cdn_austria <- read_csv("/data/data/cdn/lter_austria_1568635867427_lter_at_lter_eu_at_022_atsonam15411_tempmean_air_1.csv")
 data_placeholders <- list("NOx data")
 pollution_data <- brick("/data/data/nox/agricn2o17.asc")
+workflow <- list("Spatial crop")
 
 # NUTS 2016 definitions
 # this is a static set of metadata on NUTS regions generated from Python
@@ -87,10 +88,17 @@ ui <- fluidPage(
     titlePanel("Data cookie-cutting"),
     sidebarLayout(
         sidebarPanel(
-            helpText("1: select data"),
+            helpText("1: select workflow"),
+            selectInput(
+                inputId = "active_workflow",
+                label = "Select a workflow (cropping only, for now)",
+                choices = workflow,
+                multiple = FALSE
+            ),
+            helpText("2: select data"),
             selectInput(
                 inputId = "active_data",
-                label = "Choose data (currently NOx pollution only)",
+                label = "Choose existing data (currently NOx pollution only)",
                 choices = data_placeholders,
                 multiple = FALSE
             ),
@@ -104,12 +112,12 @@ ui <- fluidPage(
             ),
             
             # This section can be reintroduced if/when date filtering becomes relevant 
-            #helpText("2: filter by date and region"),
+            #helpText("3: filter by date and region"),
             #dateRangeInput(
             #    inputId = "date_filter",
             #    label = "Select dates to include"
             #),
-            helpText("2: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
+            helpText("3: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
             # toggle NUTS or DEIMS
             radioButtons(
                 inputId = "region_toggle",
