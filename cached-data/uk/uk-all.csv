@@ -1,0 +1,234 @@
+NUTS_ID,NUTS_NAME,CNTR_CODE,LEVL_CODE,NICENAME
+UK,UNITED KINGDOM,UK,0,UK - UNITED KINGDOM
+UKC,NORTH EAST (ENGLAND),UK,1,UKC - NORTH EAST (ENGLAND)
+UKC1,Tees Valley and Durham,UK,2,UKC1 - Tees Valley and Durham
+UKC11,Hartlepool and Stockton-on-Tees,UK,3,UKC11 - Hartlepool and Stockton-on-Tees
+UKC12,South Teesside,UK,3,UKC12 - South Teesside
+UKC13,Darlington,UK,3,UKC13 - Darlington
+UKC14,Durham CC,UK,3,UKC14 - Durham CC
+UKC2,Northumberland and Tyne and Wear,UK,2,UKC2 - Northumberland and Tyne and Wear
+UKC21,Northumberland,UK,3,UKC21 - Northumberland
+UKC22,Tyneside,UK,3,UKC22 - Tyneside
+UKC23,Sunderland,UK,3,UKC23 - Sunderland
+UKD,NORTH WEST (ENGLAND),UK,1,UKD - NORTH WEST (ENGLAND)
+UKD1,Cumbria,UK,2,UKD1 - Cumbria
+UKD11,West Cumbria,UK,3,UKD11 - West Cumbria
+UKD12,East Cumbria,UK,3,UKD12 - East Cumbria
+UKD3,Greater Manchester,UK,2,UKD3 - Greater Manchester
+UKD33,Manchester,UK,3,UKD33 - Manchester
+UKD34,Greater Manchester South West,UK,3,UKD34 - Greater Manchester South West
+UKD35,Greater Manchester South East,UK,3,UKD35 - Greater Manchester South East
+UKD36,Greater Manchester North West,UK,3,UKD36 - Greater Manchester North West
+UKD37,Greater Manchester North East,UK,3,UKD37 - Greater Manchester North East
+UKD4,Lancashire,UK,2,UKD4 - Lancashire
+UKD41,Blackburn with Darwen,UK,3,UKD41 - Blackburn with Darwen
+UKD42,Blackpool,UK,3,UKD42 - Blackpool
+UKD44,Lancaster and Wyre,UK,3,UKD44 - Lancaster and Wyre
+UKD45,Mid Lancashire,UK,3,UKD45 - Mid Lancashire
+UKD46,East Lancashire,UK,3,UKD46 - East Lancashire
+UKD47,Chorley and West Lancashire,UK,3,UKD47 - Chorley and West Lancashire
+UKD6,Cheshire,UK,2,UKD6 - Cheshire
+UKD61,Warrington,UK,3,UKD61 - Warrington
+UKD62,Cheshire East,UK,3,UKD62 - Cheshire East
+UKD63,Cheshire West and Chester,UK,3,UKD63 - Cheshire West and Chester
+UKD7,Merseyside,UK,2,UKD7 - Merseyside
+UKD71,East Merseyside,UK,3,UKD71 - East Merseyside
+UKD72,Liverpool,UK,3,UKD72 - Liverpool
+UKD73,Sefton,UK,3,UKD73 - Sefton
+UKD74,Wirral,UK,3,UKD74 - Wirral
+UKE,YORKSHIRE AND THE HUMBER,UK,1,UKE - YORKSHIRE AND THE HUMBER
+UKE1,East Yorkshire and Northern Lincolnshire,UK,2,UKE1 - East Yorkshire and Northern Lincolnshire
+UKE11,"Kingston upon Hull, City of",UK,3,"UKE11 - Kingston upon Hull, City of"
+UKE12,East Riding of Yorkshire,UK,3,UKE12 - East Riding of Yorkshire
+UKE13,North and North East Lincolnshire,UK,3,UKE13 - North and North East Lincolnshire
+UKE2,North Yorkshire,UK,2,UKE2 - North Yorkshire
+UKE21,York,UK,3,UKE21 - York
+UKE22,North Yorkshire CC,UK,3,UKE22 - North Yorkshire CC
+UKE3,South Yorkshire,UK,2,UKE3 - South Yorkshire
+UKE31,"Barnsley, Doncaster and Rotherham",UK,3,"UKE31 - Barnsley, Doncaster and Rotherham"
+UKE32,Sheffield,UK,3,UKE32 - Sheffield
+UKE4,West Yorkshire,UK,2,UKE4 - West Yorkshire
+UKE41,Bradford,UK,3,UKE41 - Bradford
+UKE42,Leeds,UK,3,UKE42 - Leeds
+UKE44,Calderdale and Kirklees,UK,3,UKE44 - Calderdale and Kirklees
+UKE45,Wakefield,UK,3,UKE45 - Wakefield
+UKF,EAST MIDLANDS (ENGLAND),UK,1,UKF - EAST MIDLANDS (ENGLAND)
+UKF1,Derbyshire and Nottinghamshire,UK,2,UKF1 - Derbyshire and Nottinghamshire
+UKF11,Derby,UK,3,UKF11 - Derby
+UKF12,East Derbyshire,UK,3,UKF12 - East Derbyshire
+UKF13,South and West Derbyshire,UK,3,UKF13 - South and West Derbyshire
+UKF14,Nottingham,UK,3,UKF14 - Nottingham
+UKF15,North Nottinghamshire,UK,3,UKF15 - North Nottinghamshire
+UKF16,South Nottinghamshire,UK,3,UKF16 - South Nottinghamshire
+UKF2,"Leicestershire, Rutland and Northamptonshire",UK,2,"UKF2 - Leicestershire, Rutland and Northamptonshire"
+UKF21,Leicester,UK,3,UKF21 - Leicester
+UKF22,Leicestershire CC and Rutland,UK,3,UKF22 - Leicestershire CC and Rutland
+UKF24,West Northamptonshire,UK,3,UKF24 - West Northamptonshire
+UKF25,North Northamptonshire,UK,3,UKF25 - North Northamptonshire
+UKF3,Lincolnshire,UK,2,UKF3 - Lincolnshire
+UKF30,Lincolnshire,UK,3,UKF30 - Lincolnshire
+UKG,WEST MIDLANDS (ENGLAND),UK,1,UKG - WEST MIDLANDS (ENGLAND)
+UKG1,"Herefordshire, Worcestershire and Warwickshire",UK,2,"UKG1 - Herefordshire, Worcestershire and Warwickshire"
+UKG11,"Herefordshire, County of",UK,3,"UKG11 - Herefordshire, County of"
+UKG12,Worcestershire,UK,3,UKG12 - Worcestershire
+UKG13,Warwickshire,UK,3,UKG13 - Warwickshire
+UKG2,Shropshire and Staffordshire,UK,2,UKG2 - Shropshire and Staffordshire
+UKG21,Telford and Wrekin,UK,3,UKG21 - Telford and Wrekin
+UKG22,Shropshire CC,UK,3,UKG22 - Shropshire CC
+UKG23,Stoke-on-Trent,UK,3,UKG23 - Stoke-on-Trent
+UKG24,Staffordshire CC,UK,3,UKG24 - Staffordshire CC
+UKG3,West Midlands,UK,2,UKG3 - West Midlands
+UKG31,Birmingham,UK,3,UKG31 - Birmingham
+UKG32,Solihull,UK,3,UKG32 - Solihull
+UKG33,Coventry,UK,3,UKG33 - Coventry
+UKG36,Dudley,UK,3,UKG36 - Dudley
+UKG37,Sandwell,UK,3,UKG37 - Sandwell
+UKG38,Walsall,UK,3,UKG38 - Walsall
+UKG39,Wolverhampton,UK,3,UKG39 - Wolverhampton
+UKH,EAST OF ENGLAND,UK,1,UKH - EAST OF ENGLAND
+UKH1,East Anglia,UK,2,UKH1 - East Anglia
+UKH11,Peterborough,UK,3,UKH11 - Peterborough
+UKH12,Cambridgeshire CC,UK,3,UKH12 - Cambridgeshire CC
+UKH14,Suffolk,UK,3,UKH14 - Suffolk
+UKH15,Norwich and East Norfolk,UK,3,UKH15 - Norwich and East Norfolk
+UKH16,North and West Norfolk,UK,3,UKH16 - North and West Norfolk
+UKH17,Breckland and South Norfolk,UK,3,UKH17 - Breckland and South Norfolk
+UKH2,Bedfordshire and Hertfordshire,UK,2,UKH2 - Bedfordshire and Hertfordshire
+UKH21,Luton,UK,3,UKH21 - Luton
+UKH23,Hertfordshire,UK,3,UKH23 - Hertfordshire
+UKH24,Bedford,UK,3,UKH24 - Bedford
+UKH25,Central Bedfordshire,UK,3,UKH25 - Central Bedfordshire
+UKH3,Essex,UK,2,UKH3 - Essex
+UKH31,Southend-on-Sea,UK,3,UKH31 - Southend-on-Sea
+UKH32,Thurrock,UK,3,UKH32 - Thurrock
+UKH34,Essex Haven Gateway,UK,3,UKH34 - Essex Haven Gateway
+UKH35,West Essex,UK,3,UKH35 - West Essex
+UKH36,Heart of Essex,UK,3,UKH36 - Heart of Essex
+UKH37,Essex Thames Gateway,UK,3,UKH37 - Essex Thames Gateway
+UKI,LONDON,UK,1,UKI - LONDON
+UKI3,Inner London - West,UK,2,UKI3 - Inner London - West
+UKI31,Camden and City of London,UK,3,UKI31 - Camden and City of London
+UKI32,Westminster,UK,3,UKI32 - Westminster
+UKI33,Kensington & Chelsea and Hammersmith & Fulham,UK,3,UKI33 - Kensington & Chelsea and Hammersmith & Fulham
+UKI34,Wandsworth,UK,3,UKI34 - Wandsworth
+UKI4,Inner London - East,UK,2,UKI4 - Inner London - East
+UKI41,Hackney and Newham,UK,3,UKI41 - Hackney and Newham
+UKI42,Tower Hamlets,UK,3,UKI42 - Tower Hamlets
+UKI43,Haringey and Islington,UK,3,UKI43 - Haringey and Islington
+UKI44,Lewisham and Southwark,UK,3,UKI44 - Lewisham and Southwark
+UKI45,Lambeth,UK,3,UKI45 - Lambeth
+UKI5,Outer London - East and North East,UK,2,UKI5 - Outer London - East and North East
+UKI51,Bexley and Greenwich,UK,3,UKI51 - Bexley and Greenwich
+UKI52,Barking & Dagenham and Havering,UK,3,UKI52 - Barking & Dagenham and Havering
+UKI53,Redbridge and Waltham Forest,UK,3,UKI53 - Redbridge and Waltham Forest
+UKI54,Enfield,UK,3,UKI54 - Enfield
+UKI6,Outer London - South,UK,2,UKI6 - Outer London - South
+UKI61,Bromley,UK,3,UKI61 - Bromley
+UKI62,Croydon,UK,3,UKI62 - Croydon
+UKI63,"Merton, Kingston upon Thames and Sutton",UK,3,"UKI63 - Merton, Kingston upon Thames and Sutton"
+UKI7,Outer London - West and North West,UK,2,UKI7 - Outer London - West and North West
+UKI71,Barnet,UK,3,UKI71 - Barnet
+UKI72,Brent,UK,3,UKI72 - Brent
+UKI73,Ealing,UK,3,UKI73 - Ealing
+UKI74,Harrow and Hillingdon,UK,3,UKI74 - Harrow and Hillingdon
+UKI75,Hounslow and Richmond upon Thames,UK,3,UKI75 - Hounslow and Richmond upon Thames
+UKJ,SOUTH EAST (ENGLAND),UK,1,UKJ - SOUTH EAST (ENGLAND)
+UKJ1,"Berkshire, Buckinghamshire and Oxfordshire",UK,2,"UKJ1 - Berkshire, Buckinghamshire and Oxfordshire"
+UKJ11,Berkshire,UK,3,UKJ11 - Berkshire
+UKJ12,Milton Keynes,UK,3,UKJ12 - Milton Keynes
+UKJ13,Buckinghamshire CC,UK,3,UKJ13 - Buckinghamshire CC
+UKJ14,Oxfordshire,UK,3,UKJ14 - Oxfordshire
+UKJ2,"Surrey, East and West Sussex",UK,2,"UKJ2 - Surrey, East and West Sussex"
+UKJ21,Brighton and Hove,UK,3,UKJ21 - Brighton and Hove
+UKJ22,East Sussex CC,UK,3,UKJ22 - East Sussex CC
+UKJ25,West Surrey,UK,3,UKJ25 - West Surrey
+UKJ26,East Surrey,UK,3,UKJ26 - East Surrey
+UKJ27,West Sussex (South West),UK,3,UKJ27 - West Sussex (South West)
+UKJ28,West Sussex (North East),UK,3,UKJ28 - West Sussex (North East)
+UKJ3,Hampshire and Isle of Wight,UK,2,UKJ3 - Hampshire and Isle of Wight
+UKJ31,Portsmouth,UK,3,UKJ31 - Portsmouth
+UKJ32,Southampton,UK,3,UKJ32 - Southampton
+UKJ34,Isle of Wight,UK,3,UKJ34 - Isle of Wight
+UKJ35,South Hampshire,UK,3,UKJ35 - South Hampshire
+UKJ36,Central Hampshire,UK,3,UKJ36 - Central Hampshire
+UKJ37,North Hampshire,UK,3,UKJ37 - North Hampshire
+UKJ4,Kent,UK,2,UKJ4 - Kent
+UKJ41,Medway,UK,3,UKJ41 - Medway
+UKJ43,Kent Thames Gateway,UK,3,UKJ43 - Kent Thames Gateway
+UKJ44,East Kent,UK,3,UKJ44 - East Kent
+UKJ45,Mid Kent,UK,3,UKJ45 - Mid Kent
+UKJ46,West Kent,UK,3,UKJ46 - West Kent
+UKK,SOUTH WEST (ENGLAND),UK,1,UKK - SOUTH WEST (ENGLAND)
+UKK1,"Gloucestershire, Wiltshire and Bristol/Bath area",UK,2,"UKK1 - Gloucestershire, Wiltshire and Bristol/Bath area"
+UKK11,"Bristol, City of",UK,3,"UKK11 - Bristol, City of"
+UKK12,"Bath and North East Somerset, North Somerset and South Gloucestershire",UK,3,"UKK12 - Bath and North East Somerset, North Somerset and South Gloucestershire"
+UKK13,Gloucestershire,UK,3,UKK13 - Gloucestershire
+UKK14,Swindon,UK,3,UKK14 - Swindon
+UKK15,Wiltshire CC,UK,3,UKK15 - Wiltshire CC
+UKK2,Dorset and Somerset,UK,2,UKK2 - Dorset and Somerset
+UKK21,Bournemouth and Poole,UK,3,UKK21 - Bournemouth and Poole
+UKK22,Dorset CC,UK,3,UKK22 - Dorset CC
+UKK23,Somerset,UK,3,UKK23 - Somerset
+UKK3,Cornwall and Isles of Scilly,UK,2,UKK3 - Cornwall and Isles of Scilly
+UKK30,Cornwall and Isles of Scilly,UK,3,UKK30 - Cornwall and Isles of Scilly
+UKK4,Devon,UK,2,UKK4 - Devon
+UKK41,Plymouth,UK,3,UKK41 - Plymouth
+UKK42,Torbay,UK,3,UKK42 - Torbay
+UKK43,Devon CC,UK,3,UKK43 - Devon CC
+UKL,WALES,UK,1,UKL - WALES
+UKL1,West Wales and The Valleys,UK,2,UKL1 - West Wales and The Valleys
+UKL11,Isle of Anglesey,UK,3,UKL11 - Isle of Anglesey
+UKL12,Gwynedd,UK,3,UKL12 - Gwynedd
+UKL13,Conwy and Denbighshire,UK,3,UKL13 - Conwy and Denbighshire
+UKL14,South West Wales,UK,3,UKL14 - South West Wales
+UKL15,Central Valleys,UK,3,UKL15 - Central Valleys
+UKL16,Gwent Valleys,UK,3,UKL16 - Gwent Valleys
+UKL17,Bridgend and Neath Port Talbot,UK,3,UKL17 - Bridgend and Neath Port Talbot
+UKL18,Swansea,UK,3,UKL18 - Swansea
+UKL2,East Wales,UK,2,UKL2 - East Wales
+UKL21,Monmouthshire and Newport,UK,3,UKL21 - Monmouthshire and Newport
+UKL22,Cardiff and Vale of Glamorgan,UK,3,UKL22 - Cardiff and Vale of Glamorgan
+UKL23,Flintshire and Wrexham,UK,3,UKL23 - Flintshire and Wrexham
+UKL24,Powys,UK,3,UKL24 - Powys
+UKM,SCOTLAND,UK,1,UKM - SCOTLAND
+UKM5,North Eastern Scotland,UK,2,UKM5 - North Eastern Scotland
+UKM50,Aberdeen City and Aberdeenshire,UK,3,UKM50 - Aberdeen City and Aberdeenshire
+UKM6,Highlands and Islands,UK,2,UKM6 - Highlands and Islands
+UKM61,Caithness & Sutherland and Ross & Cromarty,UK,3,UKM61 - Caithness & Sutherland and Ross & Cromarty
+UKM62,"Inverness & Nairn and Moray, Badenoch & Strathspey",UK,3,"UKM62 - Inverness & Nairn and Moray, Badenoch & Strathspey"
+UKM63,"Lochaber, Skye & Lochalsh, Arran & Cumbrae and Argyll & Bute",UK,3,"UKM63 - Lochaber, Skye & Lochalsh, Arran & Cumbrae and Argyll & Bute"
+UKM64,Na h-Eileanan Siar (Western Isles),UK,3,UKM64 - Na h-Eileanan Siar (Western Isles)
+UKM65,Orkney Islands,UK,3,UKM65 - Orkney Islands
+UKM66,Shetland Islands,UK,3,UKM66 - Shetland Islands
+UKM7,Eastern Scotland,UK,2,UKM7 - Eastern Scotland
+UKM71,Angus and Dundee City,UK,3,UKM71 - Angus and Dundee City
+UKM72,Clackmannanshire and Fife,UK,3,UKM72 - Clackmannanshire and Fife
+UKM73,East Lothian and Midlothian,UK,3,UKM73 - East Lothian and Midlothian
+UKM75,"Edinburgh, City of",UK,3,"UKM75 - Edinburgh, City of"
+UKM76,Falkirk,UK,3,UKM76 - Falkirk
+UKM77,Perth & Kinross and Stirling,UK,3,UKM77 - Perth & Kinross and Stirling
+UKM78,West Lothian,UK,3,UKM78 - West Lothian
+UKM8,West Central Scotland,UK,2,UKM8 - West Central Scotland
+UKM81,"East Dunbartonshire, West Dunbartonshire and Helensburgh & Lomond",UK,3,"UKM81 - East Dunbartonshire, West Dunbartonshire and Helensburgh & Lomond"
+UKM82,Glasgow City,UK,3,UKM82 - Glasgow City
+UKM83,"Inverclyde, East Renfrewshire and Renfrewshire",UK,3,"UKM83 - Inverclyde, East Renfrewshire and Renfrewshire"
+UKM84,North Lanarkshire,UK,3,UKM84 - North Lanarkshire
+UKM9,Southern Scotland,UK,2,UKM9 - Southern Scotland
+UKM91,Scottish Borders,UK,3,UKM91 - Scottish Borders
+UKM92,Dumfries & Galloway,UK,3,UKM92 - Dumfries & Galloway
+UKM93,East Ayrshire and North Ayrshire mainland,UK,3,UKM93 - East Ayrshire and North Ayrshire mainland
+UKM94,South Ayrshire,UK,3,UKM94 - South Ayrshire
+UKM95,South Lanarkshire,UK,3,UKM95 - South Lanarkshire
+UKN,NORTHERN IRELAND,UK,1,UKN - NORTHERN IRELAND
+UKN0,Northern Ireland,UK,2,UKN0 - Northern Ireland
+UKN06,Belfast,UK,3,UKN06 - Belfast
+UKN07,"Armagh City, Banbridge and Craigavon",UK,3,"UKN07 - Armagh City, Banbridge and Craigavon"
+UKN08,"Newry, Mourne and Down",UK,3,"UKN08 - Newry, Mourne and Down"
+UKN09,Ards and North Down,UK,3,UKN09 - Ards and North Down
+UKN10,Derry City and Strabane,UK,3,UKN10 - Derry City and Strabane
+UKN11,Mid Ulster,UK,3,UKN11 - Mid Ulster
+UKN12,Causeway Coast and Glens,UK,3,UKN12 - Causeway Coast and Glens
+UKN13,Antrim and Newtownabbey,UK,3,UKN13 - Antrim and Newtownabbey
+UKN14,Lisburn and Castlereagh,UK,3,UKN14 - Lisburn and Castlereagh
+UKN15,Mid and East Antrim,UK,3,UKN15 - Mid and East Antrim
+UKN16,Fermanagh and Omagh,UK,3,UKN16 - Fermanagh and Omagh
