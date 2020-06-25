@@ -5,6 +5,7 @@ library(shiny)
 library(tidyverse)
 library(raster)
 library(rgdal)
+library(reticulate)
 #library(lubridate)
 #library(jsonlite)
 #library(leaflet) for maps
@@ -13,9 +14,7 @@ library(rgdal)
 # data
 #data_placeholders <- list("Zöbelboden SOS","NOx data","Census data")
 #cdn_austria <- read_csv("/data/data/cdn/lter_austria_1568635867427_lter_at_lter_eu_at_022_atsonam15411_tempmean_air_1.csv")
-data_placeholders <- list("NOx data")
 pollution_data <- brick("/data/data/nox/agricn2o17.asc")
-workflow <- list("Spatial crop")
 
 # NUTS 2016 definitions
 # this is a static set of metadata on NUTS regions generated from Python
@@ -83,6 +82,9 @@ cairngorms <- spTransform(cairngorms,crs(pollution_data))
 #countries <- unique(countries)
 #countries
 
+# reticulate
+use_python('/usr/bin/python3')
+
 ### shiny code
 ui <- fluidPage(
     titlePanel("Data cookie-cutting"),
@@ -91,101 +93,117 @@ ui <- fluidPage(
             helpText("1: select workflow"),
             selectInput(
                 inputId = "active_workflow",
-                label = "Select a workflow (cropping only, for now)",
-                choices = workflow,
+                label = "Select a workflow",
+                choices = c("Mask gridded dataset","Aggregate non-gridded dataset"),
                 multiple = FALSE
             ),
-            helpText("2: select data"),
-            selectInput(
-                inputId = "active_data",
-                label = "Choose existing data (currently NOx pollution only)",
-                choices = data_placeholders,
-                multiple = FALSE
-            ),
-            fileInput(
-                inputId = "user_data",
-                label = "Upload your data here (currently doesn't do anything)",
-                multiple = FALSE,
-                accept = c("text/csv",
-                           "text/comma-separated-values,text/plain",
-                           ".csv")
-            ),
-            
-            # This section can be reintroduced if/when date filtering becomes relevant 
-            #helpText("3: filter by date and region"),
-            #dateRangeInput(
-            #    inputId = "date_filter",
-            #    label = "Select dates to include"
-            #),
-            helpText("3: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
-            # toggle NUTS or DEIMS
-            radioButtons(
-                inputId = "region_toggle",
-                label = "Choose filter type",
-                choices = c("DEIMS","NUTS")
-            ),
-            # NUTS
+            # first workflow
             conditionalPanel(
-                condition = "input.region_toggle === 'NUTS'",
+                condition = "input.active_workflow === 'Mask gridded dataset'",
+                helpText("2: select data"),
                 selectInput(
-                    inputId = "nutslevel_filter",
-                    label = "NUTS level",
-                    choices = level_choices
-                ),
-                conditionalPanel(
-                    condition = "input.nutslevel_filter === '0'",
-                    selectInput(
-                        inputId = "nuts_region_0_filter",
-                        label = "NUTS region",
-                        choices = nuts_level0_names,
-                        multiple = FALSE
-                        )
-                ),
-                conditionalPanel(
-                    condition = "input.nutslevel_filter === '1'",
-                    selectInput(
-                        inputId = "nuts_region_1_filter",
-                        label = "NUTS region",
-                        choices = nuts_level1_names,
-                        multiple = FALSE
-                    )
-                ),
-                conditionalPanel(
-                    condition = "input.nutslevel_filter === '2'",
-                    selectInput(
-                        inputId = "nuts_region_2_filter",
-                        label = "NUTS region",
-                        choices = nuts_level2_names,
-                        multiple = FALSE
-                    )
-                ),
-                conditionalPanel(
-                    condition = "input.nutslevel_filter === '3'",
-                    selectInput(
-                        inputId = "nuts_region_3_filter",
-                        label = "NUTS region",
-                        choices = nuts_level3_names,
-                        multiple = FALSE
-                    )
-                )
-            ),
-            # DEIMS
-            conditionalPanel(
-                condition = "input.region_toggle === 'DEIMS'",
-                selectInput(
-                    inputId = "deims_filter",
-                    label = "Deims site (currently always maps Cairngorms as other sites don't fit example data)",
-                    choices = deims_LTSER_choices,
-                    selected = deims_LTSER_choices[3],
+                    inputId = "active_data",
+                    label = "Choose data",
+                    choices = c("NOx data"),
                     multiple = FALSE
+                ),
+                fileInput(
+                    inputId = "user_data",
+                    label = "Alternatively, upload your data here",
+                    multiple = FALSE,
+                    accept = c("text/csv",
+                               "text/comma-separated-values,text/plain",
+                               ".csv")
+                ),
+                
+                # This section can be reintroduced if/when date filtering becomes relevant 
+                #helpText("3: filter by date and region"),
+                #dateRangeInput(
+                #    inputId = "date_filter",
+                #    label = "Select dates to include"
+                #),
+                helpText("3: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
+                # toggle NUTS or DEIMS
+                radioButtons(
+                    inputId = "region_toggle",
+                    label = "Choose filter type",
+                    choices = c("DEIMS","NUTS")
+                ),
+                # NUTS
+                conditionalPanel(
+                    condition = "input.region_toggle === 'NUTS'",
+                    selectInput(
+                        inputId = "nutslevel_filter",
+                        label = "NUTS level",
+                        choices = level_choices
+                    ),
+                    conditionalPanel(
+                        condition = "input.nutslevel_filter === '0'",
+                        selectInput(
+                            inputId = "nuts_region_0_filter",
+                            label = "NUTS region",
+                            choices = nuts_level0_names,
+                            multiple = FALSE
+                        )
+                    ),
+                    conditionalPanel(
+                        condition = "input.nutslevel_filter === '1'",
+                        selectInput(
+                            inputId = "nuts_region_1_filter",
+                            label = "NUTS region",
+                            choices = nuts_level1_names,
+                            multiple = FALSE
+                        )
+                    ),
+                    conditionalPanel(
+                        condition = "input.nutslevel_filter === '2'",
+                        selectInput(
+                            inputId = "nuts_region_2_filter",
+                            label = "NUTS region",
+                            choices = nuts_level2_names,
+                            multiple = FALSE
+                        )
+                    ),
+                    conditionalPanel(
+                        condition = "input.nutslevel_filter === '3'",
+                        selectInput(
+                            inputId = "nuts_region_3_filter",
+                            label = "NUTS region",
+                            choices = nuts_level3_names,
+                            multiple = FALSE
+                        )
+                    )
+                ),
+                # DEIMS
+                conditionalPanel(
+                    condition = "input.region_toggle === 'DEIMS'",
+                    selectInput(
+                        inputId = "deims_filter",
+                        label = "Deims site (currently always maps Cairngorms as other sites don't fit example data)",
+                        choices = deims_LTSER_choices,
+                        selected = deims_LTSER_choices[3],
+                        multiple = FALSE
+                    )
                 )
+            ),
+            # second workflow
+            conditionalPanel(
+                condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
+                helpText("2: testing")
             )
         ),
         mainPanel(
-            plotOutput(outputId = "crop_preview"),
+            conditionalPanel(
+                condition = "input.active_workflow === 'Mask gridded dataset'",
+                plotOutput(outputId = "crop_preview")
+            ),
+            conditionalPanel(
+                condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
+                textOutput(outputId = "reticulate_test")
+            ),
             actionButton(
                 inputId = "download",
-                label = "Download data (doesn't do anything)"
+                label = "Download data"
             )
         )
     )
@@ -221,6 +239,10 @@ server <- function(input,output){
                 plot(crop(pollution_data,selected_region),axes=FALSE)
             }
         }
+    })
+    output$reticulate_test <- rendertext({
+        py_run_string("x = 'foo'")
+        py$x
     })
 }
 
