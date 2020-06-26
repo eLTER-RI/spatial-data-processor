@@ -3,9 +3,9 @@ packrat::on()
 
 library(shiny)
 library(tidyverse)
-library(raster)
-library(rgdal)
 library(reticulate)
+#library(raster)
+#library(rgdal)
 #library(lubridate)
 #library(jsonlite)
 #library(leaflet) for maps
@@ -14,7 +14,7 @@ library(reticulate)
 # data
 #data_placeholders <- list("Zöbelboden SOS","NOx data","Census data")
 #cdn_austria <- read_csv("/data/data/cdn/lter_austria_1568635867427_lter_at_lter_eu_at_022_atsonam15411_tempmean_air_1.csv")
-pollution_data <- brick("/data/data/nox/agricn2o17.asc")
+#pollution_data <- brick("/data/data/nox/agricn2o17.asc")
 
 # NUTS 2016 definitions
 # this is a static set of metadata on NUTS regions generated from Python
@@ -29,27 +29,6 @@ nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
 nuts_level3_names <- filter(nuts_all_levels, LEVL_CODE == 3)$NICENAME
 level_choices <- list("0","1","2","3")
 
-# this section does some direct manipulation of NUTS shapefiles, in violation of the previous
-# NUTS section. I acknowledge this is strange, but for now the architecture of this whole labs
-# solution is yet to be finalised, so the split-brain approach doesn't need resolving yet.
-#
-# read shapefiles...
-nuts0 <- readOGR(dsn = "/data/shapefiles/nuts-2016/rstudio/l0",layer = "NUTS_RG_01M_2016_3857_LEVL_0")
-nuts1 <- readOGR(dsn = "/data/shapefiles/nuts-2016/rstudio/l1",layer = "NUTS_RG_01M_2016_3857_LEVL_1")
-nuts2 <- readOGR(dsn = "/data/shapefiles/nuts-2016/rstudio/l2",layer = "NUTS_RG_01M_2016_3857_LEVL_2")
-nuts3 <- readOGR(dsn = "/data/shapefiles/nuts-2016/rstudio/l3",layer = "NUTS_RG_01M_2016_3857_LEVL_3")
-
-# ...filter UK only temporarily...
-nuts0 <- nuts0[nuts0@data$CNTR_CODE=="UK",]
-nuts1 <- nuts1[nuts1@data$CNTR_CODE=="UK",]
-nuts2 <- nuts2[nuts2@data$CNTR_CODE=="UK",]
-nuts3 <- nuts3[nuts3@data$CNTR_CODE=="UK",]
-
-# ...and convert to CRS of example data, i.e. pollution data
-nuts0 <- spTransform(nuts0,crs(pollution_data))
-nuts1 <- spTransform(nuts1,crs(pollution_data))
-nuts2 <- spTransform(nuts2,crs(pollution_data))
-nuts3 <- spTransform(nuts3,crs(pollution_data))
 
 # DEIMS definitions
 deims_LTSER_choices <- list("LTSER Zone Atelier Alpes","Braila Islands","Cairngorms National Park","Doñana LTSER","LTSER Platform Eisenwurzen")
@@ -58,10 +37,6 @@ deims_LTSER_choices <- list("LTSER Zone Atelier Alpes","Braila Islands","Cairngo
 #                         "https://deims.org/1b94503d-285c-4028-a3db-bc78e31dea07",
 #                         "https://deims.org/bcbc866c-3f4f-47a8-bbbc-0a93df6de7b2",
 #                         "https://deims.org/d0a8da18-0881-4ebe-bccf-bc4cb4e25701")
-
-# read DEIMS shapefile manually for now - will retrieve from API later or store all locally for performance
-cairngorms <- readOGR(dsn = "/data/shapefiles/deims/cairngorms",layer = "deims_sites_boundariesPolygon")
-cairngorms <- spTransform(cairngorms,crs(pollution_data))
 
 # As described above, for now we limit DEIMS sites to the five LTSER test platforms
 # This code can be activated later to retrive arbitrary sites from DEIMS on the fly
@@ -195,7 +170,7 @@ ui <- fluidPage(
         mainPanel(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
-                plotOutput(outputId = "crop_preview")
+                plotOutput(outputId = "crop_placeholder")
             ),
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
@@ -210,37 +185,15 @@ ui <- fluidPage(
 )
 
 server <- function(input,output){
-    output$crop_preview <- renderPlot({
-        #dplyr::filter(as.Date(TIME) >= as.Date(input$daterange1[1]) &
-        #              as.Date(TIME) <= as.Date(input$daterange1[2]) )
-        #plot(cdn_austria$DATE,cdn_austria$VALUE,type="l")
+    output$crop_placeholder <- renderPlot({
         if(input$region_toggle == "DEIMS"){
-            plot(crop(pollution_data,cairngorms),axes=FALSE)
+            plot(c(0,1,2,3,4),c(1,0,1,0,1),type="l")
         }
         if(input$region_toggle == "NUTS"){
-            if(input$nutslevel_filter == "0"){
-                selected_region_id <- nuts_all_levels[nuts_all_levels$NICENAME==input$nuts_region_0_filter,]$NUTS_ID
-                selected_region <- nuts0[nuts0@data$NUTS_ID==selected_region_id,]
-                plot(crop(pollution_data,selected_region),axes=FALSE)
-            }
-            if(input$nutslevel_filter == "1"){
-                selected_region_id <- nuts_all_levels[nuts_all_levels$NICENAME==input$nuts_region_1_filter,]$NUTS_ID
-                selected_region <- nuts1[nuts1@data$NUTS_ID==selected_region_id,]
-                plot(crop(pollution_data,selected_region),axes=FALSE)
-            }
-            if(input$nutslevel_filter == "2"){
-                selected_region_id <- nuts_all_levels[nuts_all_levels$NICENAME==input$nuts_region_2_filter,]$NUTS_ID
-                selected_region <- nuts2[nuts2@data$NUTS_ID==selected_region_id,]
-                plot(crop(pollution_data,selected_region),axes=FALSE)
-            }
-            if(input$nutslevel_filter == "3"){
-                selected_region_id <- nuts_all_levels[nuts_all_levels$NICENAME==input$nuts_region_3_filter,]$NUTS_ID
-                selected_region <- nuts3[nuts3@data$NUTS_ID==selected_region_id,]
-                plot(crop(pollution_data,selected_region),axes=FALSE)
-            }
+            plot(c(0,1,2,3,4),c(0,1,0,1,0),type="l")
         }
     })
-    output$reticulate_test <- rendertext({
+    output$reticulate_test <- renderText({
         py_run_string("x = 'foo'")
         py$x
     })
