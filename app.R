@@ -19,10 +19,7 @@ library(reticulate)
 # NUTS 2016 definitions
 # this is a static set of metadata on NUTS regions generated from Python
 # under the assumption that reticulate will pass to Python actual processing tasks.
-nuts_all_levels <- read_csv("all-nuts-2016.csv") %>%
-    filter(CNTR_CODE == "UK") %>% # DELETE THIS LINE FOR ALL COUNTRIES
-    mutate(NICENAME = paste(NUTS_ID,NUTS_NAME,sep=" - ")) %>%
-    arrange(NICENAME)
+nuts_all_levels <- read_csv("cached-data/uk/uk-all.csv")
 nuts_level0_names <- filter(nuts_all_levels, LEVL_CODE == 0)$NICENAME
 nuts_level1_names <- filter(nuts_all_levels, LEVL_CODE == 1)$NICENAME
 nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
