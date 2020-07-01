@@ -2,11 +2,14 @@
 packrat::on()
 
 install.packages("tidyverse")
-install.packages("rgdal")
 install.packages("reticulate")
+install.packages("rgdal")
 install.packages("raster")
+install.packages("lubridate")
 install.packages("maptools")
 install.packages("sf")
+install.packages("jsonlite")
+install.packages("leaflet")
 
 ###################
 # DEIMS API
@@ -14,6 +17,13 @@ install.packages("sf")
 library(jsonlite)
 
 deims_all_sites <- fromJSON("https://deims.org/api/sites")
+
+deims_LTSER_urls <- list("https://deims.org/79d6c1df-570f-455f-a929-6cfe5c4ca1e9",
+                         "https://deims.org/d4854af8-9d9f-42a2-af96-f1ed9cb25712",
+                         "https://deims.org/1b94503d-285c-4028-a3db-bc78e31dea07",
+                         "https://deims.org/bcbc866c-3f4f-47a8-bbbc-0a93df6de7b2",
+                         "https://deims.org/d0a8da18-0881-4ebe-bccf-bc4cb4e25701")
+
 
 # quick and dirty list of countries will do for now, 10 sites to avoid spamming API
 countries <- character(0)
