@@ -11,7 +11,7 @@ library(reticulate)
 
 # NUTS 2016 definitions
 # read static metadata on NUTS regions generated in Python
-nuts_all_levels <- read_csv("cached-data/uk/uk-all.csv")
+nuts_all_levels <- read_csv("shapefiles/zones/nuts2016/uk-all.csv")
 nuts_level0_names <- filter(nuts_all_levels, LEVL_CODE == 0)$NICENAME
 nuts_level1_names <- filter(nuts_all_levels, LEVL_CODE == 1)$NICENAME
 nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
@@ -22,7 +22,8 @@ level_choices <- list("0","1","2","3")
 deims_LTSER_choices <- list("LTSER Zone Atelier Alpes","Braila Islands","Cairngorms National Park","Doñana LTSER","LTSER Platform Eisenwurzen")
 
 # reticulate
-use_python('/usr/bin/python3')
+use_virtualenv("./reticulate-venv")
+source_python("analyse.py")
 
 ### shiny code
 ui <- fluidPage(
@@ -171,7 +172,7 @@ ui <- fluidPage(
             ),
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
-                textOutput(outputId = "reticulate_test")
+                imageOutput(outputId = "reticulate_test")
             ),
             actionButton(
                 inputId = "download",
@@ -190,9 +191,12 @@ server <- function(input,output){
             plot(c(0,1,2,3,4),c(0,1,0,1,0),type="l")
         }
     })
-    output$reticulate_test <- renderText({
-        py_run_string("x = 'foo'")
-        py$x
+    output$reticulate_test <- renderImage({
+        source_python("dummyplot.py")
+        
+        #list(src=png(py$data),contenttype="image/png;base64",width=100,height=100,alt="alt text here")
+        #source_python("testplot.py")
+        list(src="/tmp/newtest1.png",width=400,height=400,alt="alt text here")
     })
 }
 
