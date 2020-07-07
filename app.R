@@ -186,17 +186,26 @@ ui <- fluidPage(
 
 server <- function(input,output){
     output$crop_placeholder <- renderImage({
-        crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
-        cropRasterDataset(crop_id)
-        list(src="/tmp/crop-preview1.png",alt="alt")
-#        if(input$region_toggle == "DEIMS"){
-#            cropRasterDataset("nox","UKD44")
-#            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
-#        }
-#        if(input$region_toggle == "NUTS"){
-#            cropRasterDataset("nox","UKD44")
-#            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
-#        }
+        if(input$region_toggle == "DEIMS"){
+            cropRasterDataset("deims")
+            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+        }
+        else{
+            if(input$nutslevel_filter == "0"){
+                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_0_filter)$NUTS_ID
+            }
+            if(input$nutslevel_filter == "1"){
+                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_1_filter)$NUTS_ID
+            }
+            if(input$nutslevel_filter == "2"){
+                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_2_filter)$NUTS_ID
+            }
+            if(input$nutslevel_filter == "3"){
+                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
+            }
+            cropRasterDataset("nuts",crop_id)
+            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+        }
     }, deleteFile = TRUE)
     output$reticulate_test <- renderImage({
         aggregateTabularDataset(test_births)

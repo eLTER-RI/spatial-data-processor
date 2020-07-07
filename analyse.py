@@ -16,6 +16,8 @@ nox = rio.open('data/agricn2o17.asc')
 all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
 all_nuts = all_nuts.to_crs(nox.crs)
 
+cg = gpd.read_file('zip://shapefiles/deims/cairngorms/cairngorms_raw.zip')
+cg = cg.to_crs(nox.crs)
 cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-data-zones.shp')
 #cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/cairngorms-nuts0-zones.shp')
 #cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/cairngorms-nuts1-zones.shp')
@@ -23,15 +25,20 @@ cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-da
 #cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/cairngorms-nuts3-zones.shp')
 
 # "gridded" workflow
-def cropRasterDataset(region='UKD44'):
-    out_image, out_transform = riomask.mask(nox, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
-    
+def cropRasterDataset(type='nuts',region='UKD44'):
     fig, ax = plt.subplots()
     ax.set_axis_off()
-    ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx',region))
+    
+    if type == 'nuts':
+        out_image, out_transform = riomask.mask(nox, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
+        ax.set_title('{} dataset cropped to boundaries of NUTS {}.'.format('NOx',region))
+    elif type == 'deims':
+        out_image, out_transform = riomask.mask(nox, cg.geometry, crop=True)
+        ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx','Cairngorms LTSER'))
+    
     ax.imshow(out_image[0],norm=colors.LogNorm(vmin=1e-2, vmax=200))
 
-    fig.savefig('/tmp/crop-preview1.png')
+    fig.savefig('/tmp/crop-preview.png')
     plt.close(fig)
     
     return 0
