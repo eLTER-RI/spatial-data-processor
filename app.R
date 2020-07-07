@@ -41,8 +41,9 @@ ui <- fluidPage(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
                 helpText("2: select data"),
+                # wf1 input 1
                 selectInput(
-                    inputId = "active_data",
+                    inputId = "active_raster_data",
                     label = "Choose data",
                     choices = c("NOx data"),
                     multiple = FALSE
@@ -184,17 +185,22 @@ ui <- fluidPage(
 )
 
 server <- function(input,output){
-    output$crop_placeholder <- renderPlot({
-        if(input$region_toggle == "DEIMS"){
-            plot(c(0,1,2,3,4),c(1,0,1,0,1),type="l")
-        }
-        if(input$region_toggle == "NUTS"){
-            plot(c(0,1,2,3,4),c(0,1,0,1,0),type="l")
-        }
-    })
+    output$crop_placeholder <- renderImage({
+        crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
+        cropRasterDataset(crop_id)
+        list(src="/tmp/crop-preview1.png",alt="alt")
+#        if(input$region_toggle == "DEIMS"){
+#            cropRasterDataset("nox","UKD44")
+#            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+#        }
+#        if(input$region_toggle == "NUTS"){
+#            cropRasterDataset("nox","UKD44")
+#            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+#        }
+    }, deleteFile = TRUE)
     output$reticulate_test <- renderImage({
         aggregateTabularDataset(test_births)
-        list(src="/tmp/preview.png",alt="alt text here")
+        list(src="/tmp/preview.png",alt="Plot of aggregated data")
     }, deleteFile = TRUE)
 }
 
