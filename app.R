@@ -7,7 +7,7 @@ library(reticulate)
 
 ### preamble
 # data
-# cached-data/...
+test_births <- read_csv('data/births-cleaned.csv')
 
 # NUTS 2016 definitions
 # read static metadata on NUTS regions generated in Python
@@ -174,6 +174,7 @@ ui <- fluidPage(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
                 imageOutput(outputId = "reticulate_test")
             ),
+            # TODO: change to downloadButton
             actionButton(
                 inputId = "download",
                 label = "Download data"
@@ -192,12 +193,9 @@ server <- function(input,output){
         }
     })
     output$reticulate_test <- renderImage({
-        source_python("dummyplot.py")
-        
-        #list(src=png(py$data),contenttype="image/png;base64",width=100,height=100,alt="alt text here")
-        #source_python("testplot.py")
-        list(src="/tmp/newtest1.png",width=400,height=400,alt="alt text here")
-    })
+        aggregateTabularDataset(test_births)
+        list(src="/tmp/preview.png",alt="alt text here")
+    }, deleteFile = TRUE)
 }
 
 shinyApp(ui,server)
