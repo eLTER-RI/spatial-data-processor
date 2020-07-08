@@ -47,12 +47,14 @@ def cropRasterDataset(type='nuts',region='UKD44'):
 def aggregateTabularDataset(dataset,ltser_site='cairngorms',admin_zones='scot-data-zones'):
     # hardcode cairngorms for now, but can eventually accept two pieces of input from
     # shiny (site and subdivision/zones) to select GDF properly
-    merged_dataset = pd.merge(cg_dz,dataset,how='left',left_on='zone_id',right_on='DataZone')
+    right_on_key = dataset.columns[0]
+    plot_key = dataset.columns[len(dataset.columns)-1]
+    merged_dataset = pd.merge(cg_dz,dataset,how='left',left_on='zone_id',right_on=right_on_key)
     
     fig, ax = plt.subplots()
     ax.set_axis_off()
     ax.set_title('{} dataset\'s intersection with {} by {}.'.format('Births','Cairngorms LTSER','data zone'))
-    merged_dataset.plot(ax=ax,column='2018',legend=True)
+    merged_dataset.plot(ax=ax,column=plot_key,legend=True)
     fig.savefig('/tmp/preview.png')
     plt.close(fig)
     

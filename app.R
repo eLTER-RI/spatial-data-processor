@@ -138,7 +138,7 @@ ui <- fluidPage(
                     multiple = FALSE
                 ),
                 fileInput(
-                    inputId = "user_data",
+                    inputId = "tabular_data",
                     label = "Alternatively, upload your data here",
                     multiple = FALSE,
                     accept = c("text/csv",
@@ -208,8 +208,16 @@ server <- function(input,output){
         }
     }, deleteFile = TRUE)
     output$reticulate_test <- renderImage({
-        aggregateTabularDataset(test_births)
-        list(src="/tmp/preview.png",alt="Plot of aggregated data")
+        user_input <- input$tabular_data
+        if(is.null(user_input)){
+            aggregateTabularDataset(test_births)
+            list(src="/tmp/preview.png",alt="Plot of aggregated data")
+        }
+        else{
+            infile <- read_csv(user_input$datapath)
+            aggregateTabularDataset(infile)
+            list(src="/tmp/preview.png",alt="Plot of aggregated data")
+        }
     }, deleteFile = TRUE)
 }
 
