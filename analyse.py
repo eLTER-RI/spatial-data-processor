@@ -58,4 +58,4 @@ def aggregateTabularDataset(dataset,ltser_site='cairngorms',admin_zones='scot-da
     fig.savefig('/tmp/preview.png')
     plt.close(fig)
     
-    return 0
+    return merged_dataset.drop(columns='geometry')

@@ -169,23 +169,32 @@ ui <- fluidPage(
         mainPanel(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
-                plotOutput(outputId = "crop_placeholder")
+                imageOutput(outputId = "raster_plot")
             ),
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
-                imageOutput(outputId = "reticulate_test")
-            ),
-            # TODO: change to downloadButton
-            actionButton(
-                inputId = "download",
-                label = "Download data"
+                imageOutput(outputId = "tabular_plot"),
+                downloadButton(
+                    outputId = "tabular_download",
+                    label = "Download data"
+                )
             )
         )
     )
 )
 
 server <- function(input,output){
-    output$crop_placeholder <- renderImage({
+    tabular_output <- reactive({
+        user_input <- input$tabular_data
+        if(is.null(user_input)){
+            aggregateTabularDataset(test_births)
+        }
+        else{
+            infile <- read_csv(user_input$datapath)
+            aggregateTabularDataset(infile)
+        }
+    })
+    output$raster_plot <- renderImage({
         if(input$region_toggle == "DEIMS"){
             cropRasterDataset("deims")
             list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
@@ -207,17 +216,15 @@ server <- function(input,output){
             list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
         }
     }, deleteFile = TRUE)
-    output$reticulate_test <- renderImage({
-        user_input <- input$tabular_data
-        if(is.null(user_input)){
-            aggregateTabularDataset(test_births)
-            list(src="/tmp/preview.png",alt="Plot of aggregated data")
+    output$tabular_download <- downloadHandler(
+        filename = "aggregated-data.csv",
+        content = function(file){
+            write_csv(tabular_output(),file)
         }
-        else{
-            infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile)
-            list(src="/tmp/preview.png",alt="Plot of aggregated data")
-        }
+    )
+    output$tabular_plot <- renderImage({
+        replot <- tabular_output()
+        list(src="/tmp/preview.png",alt="Plot of aggregated data")
     }, deleteFile = TRUE)
 }
 
