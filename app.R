@@ -49,12 +49,10 @@ ui <- fluidPage(
                     multiple = FALSE
                 ),
                 fileInput(
-                    inputId = "user_data",
+                    inputId = "raster_data",
                     label = "Alternatively, upload your data here",
                     multiple = FALSE,
-                    accept = c("text/csv",
-                               "text/comma-separated-values,text/plain",
-                               ".csv")
+                    accept = c("image/tiff")
                 ),
                 
                 # This section can be reintroduced if/when date filtering becomes relevant 
@@ -169,7 +167,11 @@ ui <- fluidPage(
         mainPanel(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
-                imageOutput(outputId = "raster_plot")
+                imageOutput(outputId = "raster_plot"),
+                downloadButton(
+                    outputId = "raster_download",
+                    label = "Download data"
+                )
             ),
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
@@ -184,20 +186,20 @@ ui <- fluidPage(
 )
 
 server <- function(input,output){
-    tabular_output <- reactive({
-        user_input <- input$tabular_data
-        if(is.null(user_input)){
-            aggregateTabularDataset(test_births)
+    # reactive intermediates
+    # wf1
+    raster_output <- reactive({
+        user_input <- input$raster_data
+        {
+            if(is.null(user_input)){
+                dataset <- "nox"
+                }
+            else{
+                dataset <- user_input$datapath
+                }
         }
-        else{
-            infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile)
-        }
-    })
-    output$raster_plot <- renderImage({
         if(input$region_toggle == "DEIMS"){
-            cropRasterDataset("deims")
-            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+            cropRasterDataset(dataset,"deims")
         }
         else{
             if(input$nutslevel_filter == "0"){
@@ -212,16 +214,40 @@ server <- function(input,output){
             if(input$nutslevel_filter == "3"){
                 crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
             }
-            cropRasterDataset("nuts",crop_id)
-            list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+            cropRasterDataset(dataset,"nuts",crop_id)
         }
+    })
+    
+    # wf2
+    tabular_output <- reactive({
+        user_input <- input$tabular_data
+        if(is.null(user_input)){
+            aggregateTabularDataset(test_births)
+        }
+        else{
+            infile <- read_csv(user_input$datapath)
+            aggregateTabularDataset(infile)
+        }
+    })
+    
+    # outputs
+    output$raster_download <- downloadHandler(
+        filename = "cropped-data.tif",
+        content = function(file){
+            file.copy("/tmp/masked.tif",file)
+        })
+    
+    output$raster_plot <- renderImage({
+        replot <- raster_output()
+        list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
     }, deleteFile = TRUE)
+    
     output$tabular_download <- downloadHandler(
         filename = "aggregated-data.csv",
         content = function(file){
             write_csv(tabular_output(),file)
-        }
-    )
+        })
+    
     output$tabular_plot <- renderImage({
         replot <- tabular_output()
         list(src="/tmp/preview.png",alt="Plot of aggregated data")

@@ -14,10 +14,10 @@ import rasterio.mask as riomask
 nox = rio.open('data/agricn2o17.asc')
 
 all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
-all_nuts = all_nuts.to_crs(nox.crs)
+#all_nuts = all_nuts.to_crs(nox.crs)
 
 cg = gpd.read_file('zip://shapefiles/deims/cairngorms/cairngorms_raw.zip')
-cg = cg.to_crs(nox.crs)
+#cg = cg.to_crs(nox.crs)
 cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-data-zones.shp')
 #cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/cairngorms-nuts0-zones.shp')
 #cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/cairngorms-nuts1-zones.shp')
@@ -25,19 +25,40 @@ cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-da
 #cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/cairngorms-nuts3-zones.shp')
 
 # "gridded" workflow
-def cropRasterDataset(type='nuts',region='UKD44'):
+def cropRasterDataset(dataset,zone_type,region='cairngorms'):
+    global all_nuts
+    global cg
+    if dataset == 'nox':
+        active_dataset = nox
+    else:
+        active_dataset = rio.open(dataset)
+
+    all_nuts = all_nuts.to_crs(active_dataset.crs)
+    cg = cg.to_crs(active_dataset.crs)
+    
     fig, ax = plt.subplots()
     ax.set_axis_off()
     
-    if type == 'nuts':
-        out_image, out_transform = riomask.mask(nox, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
+    if zone_type == 'nuts':
+        out_image, out_transform = riomask.mask(active_dataset, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
         ax.set_title('{} dataset cropped to boundaries of NUTS {}.'.format('NOx',region))
-    elif type == 'deims':
-        out_image, out_transform = riomask.mask(nox, cg.geometry, crop=True)
+    elif zone_type == 'deims':
+        out_image, out_transform = riomask.mask(active_dataset, cg.geometry, crop=True)
         ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx','Cairngorms LTSER'))
     
-    ax.imshow(out_image[0],norm=colors.LogNorm(vmin=1e-2, vmax=200))
+    out_meta = active_dataset.meta
+    out_meta.update({
+        'driver': 'GTiff',
+        'height': out_image.shape[1],
+        'width': out_image.shape[2],
+        'transform': out_transform
+        })
+    
+    with rio.open('/tmp/masked.tif', 'w', **out_meta) as dest:
+        dest.write(out_image)
+        dest.close()
 
+    ax.imshow(out_image[0],norm=colors.LogNorm(vmin=1e-2, vmax=200))
     fig.savefig('/tmp/crop-preview.png')
     plt.close(fig)
     
@@ -58,4 +79,4 @@ def aggregateTabularDataset(dataset,ltser_site='cairngorms',admin_zones='scot-da
     fig.savefig('/tmp/preview.png')
     plt.close(fig)
     
-    return merged_dataset.drop(columns='geometry')
+    return merged_dataset.drop(columns=[right_on_key,'geometry'])
