@@ -16,10 +16,15 @@ nuts_level0_names <- filter(nuts_all_levels, LEVL_CODE == 0)$NICENAME
 nuts_level1_names <- filter(nuts_all_levels, LEVL_CODE == 1)$NICENAME
 nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
 nuts_level3_names <- filter(nuts_all_levels, LEVL_CODE == 3)$NICENAME
-level_choices <- list("0","1","2","3")
+level_choices <- c("0","1","2","3")
 
 # DEIMS definitions
-deims_LTSER_choices <- list("LTSER Zone Atelier Alpes","Braila Islands","Cairngorms National Park","Doñana LTSER","LTSER Platform Eisenwurzen")
+deims_LTSER_choices <- c(
+    "LTSER Zone Atelier Alpes" = "aa",
+    "Braila Islands" = "bi",
+    "Cairngorms National Park" = "cg",
+    "Doñana LTSER" = "dn",
+    "LTSER Platform Eisenwurzen" = "ew")
 
 # reticulate
 use_virtualenv("./reticulate-venv")
@@ -148,11 +153,11 @@ ui <- fluidPage(
                     inputId = "data_grouping",
                     label = "This data is grouped by...",
                     choices = c(
-                        "Scottish data zones",
-                        "NUTS 0 regions",
-                        "NUTS 1 regions",
-                        "NUTS 2 regions",
-                        "NUTS 3 regions"
+                        "Scottish data zones" = "dz",
+                        "NUTS 0 regions" = "n0",
+                        "NUTS 1 regions" = "n1",
+                        "NUTS 2 regions" = "n2",
+                        "NUTS 3 regions" = "n3"
                         ),
                     multiple = FALSE
                 ),
@@ -160,6 +165,7 @@ ui <- fluidPage(
                     inputId = "comparison_site",
                     label = "To which site boundaries should the data be trimmed?",
                     choices = deims_LTSER_choices,
+                    selected = "cg",
                     multiple = FALSE
                 )
             )
@@ -222,11 +228,11 @@ server <- function(input,output){
     tabular_output <- reactive({
         user_input <- input$tabular_data
         if(is.null(user_input)){
-            aggregateTabularDataset(test_births)
+            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping)
         }
         else{
             infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile)
+            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping)
         }
     })
     

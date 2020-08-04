@@ -1,13 +1,14 @@
 import geopandas as gpd
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # this function expects two GeoDataFrames and two strings and returns a GeoDataFrame
 # representing the decomposition of the first GDF by the elements of the second gdf.
 # 
 # ltser_site - the gdf to decompose
 # admin_zones - a gdf of "admin zones" describing the areas to break ltser_site into
-# zone_id - the ID attribute of each admin_zones element
-# zone_name - the name attribute of each admin_zones element
+# zone_id - the column name of the zone ID in admin_zones
+# zone_name - the column name of the zone name in admin_zones
 
 def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
     # convert CRS of dataset to match admin zones
@@ -18,6 +19,9 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
     ltser_zones = gpd.overlay(ltser_site,admin_zones,how='intersection')
     
     # add original zones for area comparison, setting correct geometry
+    # this is necessary to align the comparison geometry correctly:
+    # comparing straight away with admin_zones.geometry.area doesn't
+    # align the rows correctly
     ltser_zones = pd.merge(ltser_zones,admin_zones,on=zone_id)
     ltser_zones = ltser_zones.set_geometry('geometry_x')
     
@@ -49,6 +53,15 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
         ax.set_title('Zones (blue) intersecting LTSER site (red)')
         gdf_out.plot(ax=ax)
         ltser_site.boundary.plot(color='r',ax=ax)
+        
+        # drop debug_geometry column so output is identical to non-debug
+        gdf_out.drop(columns='debug_geometry',inplace=True)
         return gdf_out
     else:
         return gdf_out
+
+site = gpd.read_file('path/to/shapefile')
+zones = gpd.read_file('path/to/shapefile')
+new_file = decomposeSite(site,zones,'ID_here','Name_here',debug=True)
+
+export_nd.to_file('path/to/repo/folder/deims-site-admin-zones.shp')

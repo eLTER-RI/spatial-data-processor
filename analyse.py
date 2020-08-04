@@ -14,15 +14,13 @@ import rasterio.mask as riomask
 nox = rio.open('data/agricn2o17.asc')
 
 all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
-#all_nuts = all_nuts.to_crs(nox.crs)
-
 cg = gpd.read_file('zip://shapefiles/deims/cairngorms/cairngorms_raw.zip')
-#cg = cg.to_crs(nox.crs)
+
 cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-data-zones.shp')
-#cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/cairngorms-nuts0-zones.shp')
-#cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/cairngorms-nuts1-zones.shp')
-#cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/cairngorms-nuts2-zones.shp')
-#cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/cairngorms-nuts3-zones.shp')
+cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/cairngorms-nuts0-zones.shp')
+cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/cairngorms-nuts1-zones.shp')
+cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/cairngorms-nuts2-zones.shp')
+cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/cairngorms-nuts3-zones.shp')
 
 # "gridded" workflow
 def cropRasterDataset(dataset,zone_type,region='cairngorms'):
@@ -65,13 +63,30 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
     return 0
     
 # "non-gridded" workflow
-def aggregateTabularDataset(dataset,ltser_site='cairngorms',admin_zones='scot-data-zones'):
+def aggregateTabularDataset(dataset,ltser_site='cg',admin_zones='dz'):
     # hardcode cairngorms for now, but can eventually accept two pieces of input from
     # shiny (site and subdivision/zones) to select GDF properly
+    
+    # prepare merge, starting with selecting base shapefile
+    if ltser_site == 'cg':
+        if admin_zones == 'dz':
+            base_shapefile = cg_dz
+        elif admin_zones == 'n0':
+            base_shapefile = cg_n0
+        elif admin_zones == 'n1':
+            base_shapefile = cg_n1
+        elif admin_zones == 'n2':
+            base_shapefile = cg_n2
+        else:
+            base_shapefile = cg_n3
+
     right_on_key = dataset.columns[0]
     plot_key = dataset.columns[len(dataset.columns)-1]
-    merged_dataset = pd.merge(cg_dz,dataset,how='left',left_on='zone_id',right_on=right_on_key)
     
+    # merge
+    merged_dataset = pd.merge(base_shapefile,dataset,how='left',left_on='zone_id',right_on=right_on_key)
+    
+    # plot output
     fig, ax = plt.subplots()
     ax.set_axis_off()
     ax.set_title('{} dataset\'s intersection with {} by {}.'.format('Births','Cairngorms LTSER','data zone'))
