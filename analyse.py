@@ -14,13 +14,13 @@ import rasterio.mask as riomask
 nox = rio.open('data/agricn2o17.asc')
 
 all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
-cg = gpd.read_file('zip://shapefiles/deims/cairngorms/cairngorms_raw.zip')
+cg = gpd.read_file('shapefiles/deims/cairngorms/raw/boundaries.shp')
 
-cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/cairngorms-data-zones.shp')
-cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/cairngorms-nuts0-zones.shp')
-cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/cairngorms-nuts1-zones.shp')
-cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/cairngorms-nuts2-zones.shp')
-cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/cairngorms-nuts3-zones.shp')
+cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/boundaries.shp')
+cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/boundaries.shp')
+cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/boundaries.shp')
+cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/boundaries.shp')
+cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/boundaries.shp')
 
 # "gridded" workflow
 def cropRasterDataset(dataset,zone_type,region='cairngorms'):
