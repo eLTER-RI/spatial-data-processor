@@ -62,6 +62,6 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
 
 site = gpd.read_file('path/to/shapefile')
 zones = gpd.read_file('path/to/shapefile')
-new_file = decomposeSite(site,zones,'ID_here','Name_here',debug=True)
+export = decomposeSite(site,zones,'ID_here','Name_here',debug=False)
 
-export_nd.to_file('path/to/repo/folder/deims-site-admin-zones.shp')
+export.to_file('path/to/repo/folder/deims-site-admin-zones.shp')
