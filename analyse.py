@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import rasterio as rio
 import rasterio.mask as riomask
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 # default data for wf1 - not passed through dynamically since no
 # native conversion of data types via reticulate
@@ -98,7 +100,7 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
 
 # "non-gridded" workflow
 def aggregateTabularDataset(dataset,ltser_site,admin_zones):
-    # prepare merge, starting with selecting base shapefile
+    # prepare merge, starting with shapefile data/metadata
     if ltser_site == 'aa':
         if admin_zones == 'n0':
             base_shapefile = aa_n0
@@ -148,6 +150,23 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones):
             base_shapefile = ew_n3
     else:
         base_shapefile = cg_dz
+    
+    ltser_site_name_dict = {
+        'aa': 'LTSER Zone Atelier Alpes',
+        'bi': 'Braila Islands',
+        'cg': 'Cairngorms National Park',
+        'dn': 'Doñana LTSER',
+        'ew': 'LTSER Platform Eisenwurzen',
+    }
+    ltser_site_name = ltser_site_name_dict[ltser_site]
+    admin_zones_name_dict = {
+        'n0': 'NUTS level 0',
+        'n1': 'NUTS level 1',
+        'n2': 'NUTS level 2',
+        'n3': 'NUTS level 3',
+        'dz': 'Scottish data zones'
+    }
+    admin_zones_name = admin_zones_name_dict[admin_zones]
 
     right_on_key = dataset.columns[0]
     plot_key = dataset.columns[len(dataset.columns)-1]
@@ -157,9 +176,14 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones):
     
     # plot output
     fig, ax = plt.subplots()
+    # from geopandas docs: align legend to plot
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1)
+    # additional formatting
     ax.set_axis_off()
-    ax.set_title('{} dataset\'s intersection with {} by {}.'.format('Births','Cairngorms LTSER','data zone'))
-    merged_dataset.plot(ax=ax,column=plot_key,legend=True)
+    ax.set_title('{} data cropped to {} by {}.'.format('Births',ltser_site_name,admin_zones_name))
+    # plot output, save to temporary image and close plot to save memory
+    merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
     fig.savefig('/tmp/preview.png')
     plt.close(fig)
     
