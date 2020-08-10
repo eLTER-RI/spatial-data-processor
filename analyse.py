@@ -3,6 +3,7 @@
 # wf2 - aggregate
 # this tabular dataset (1) to this site (2), divided by these boundaries (3) 
 
+import os
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -20,39 +21,11 @@ nox = rio.open('data/agricn2o17.asc')
 # nuts
 all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
 # deims
-aa = gpd.read_file('shapefiles/deims/atelier-alpes/raw/boundaries.shp')
-bi = gpd.read_file('shapefiles/deims/braila-islands/raw/boundaries.shp')
-cg = gpd.read_file('shapefiles/deims/cairngorms/raw/boundaries.shp')
-dn = gpd.read_file('shapefiles/deims/donana/raw/boundaries.shp')
-ew = gpd.read_file('shapefiles/deims/eisenwurzen/raw/boundaries.shp')
-
-# wf2 shapefiles
-# atelier alpes
-aa_n0 = gpd.read_file('shapefiles/deims/atelier-alpes/nuts0/boundaries.shp')
-aa_n1 = gpd.read_file('shapefiles/deims/atelier-alpes/nuts1/boundaries.shp')
-aa_n2 = gpd.read_file('shapefiles/deims/atelier-alpes/nuts2/boundaries.shp')
-aa_n3 = gpd.read_file('shapefiles/deims/atelier-alpes/nuts3/boundaries.shp')
-# braila islands
-bi_n0 = gpd.read_file('shapefiles/deims/braila-islands/nuts0/boundaries.shp')
-bi_n1 = gpd.read_file('shapefiles/deims/braila-islands/nuts1/boundaries.shp')
-bi_n2 = gpd.read_file('shapefiles/deims/braila-islands/nuts2/boundaries.shp')
-bi_n3 = gpd.read_file('shapefiles/deims/braila-islands/nuts3/boundaries.shp')
-# cairngorms
-cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/boundaries.shp')
-cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/boundaries.shp')
-cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/boundaries.shp')
-cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/boundaries.shp')
-cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/boundaries.shp')
-# donana
-dn_n0 = gpd.read_file('shapefiles/deims/donana/nuts0/boundaries.shp')
-dn_n1 = gpd.read_file('shapefiles/deims/donana/nuts1/boundaries.shp')
-dn_n2 = gpd.read_file('shapefiles/deims/donana/nuts2/boundaries.shp')
-dn_n3 = gpd.read_file('shapefiles/deims/donana/nuts3/boundaries.shp')
-# eisenwurzen
-ew_n0 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts0/boundaries.shp')
-ew_n1 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts1/boundaries.shp')
-ew_n2 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts2/boundaries.shp')
-ew_n3 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts3/boundaries.shp')
+aa = gpd.read_file('shapefiles/deims/aa/raw/boundaries.shp')
+bi = gpd.read_file('shapefiles/deims/bi/raw/boundaries.shp')
+cg = gpd.read_file('shapefiles/deims/cg/raw/boundaries.shp')
+dn = gpd.read_file('shapefiles/deims/dn/raw/boundaries.shp')
+ew = gpd.read_file('shapefiles/deims/ew/raw/boundaries.shp')
 
 
 
@@ -101,56 +74,11 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
 # "non-gridded" workflow
 def aggregateTabularDataset(dataset,ltser_site,admin_zones):
     # prepare merge, starting with shapefile data/metadata
-    if ltser_site == 'aa':
-        if admin_zones == 'n0':
-            base_shapefile = aa_n0
-        elif admin_zones == 'n1':
-            base_shapefile = aa_n1
-        elif admin_zones == 'n2':
-            base_shapefile = aa_n2
-        else:
-            base_shapefile = aa_n3
-    elif ltser_site == 'bi':
-        if admin_zones == 'n0':
-            base_shapefile = bi_n0
-        elif admin_zones == 'n1':
-            base_shapefile = bi_n1
-        elif admin_zones == 'n2':
-            base_shapefile = bi_n2
-        else:
-            base_shapefile = bi_n3
-    elif ltser_site == 'cg':
-        if admin_zones == 'dz':
-            base_shapefile = cg_dz
-        elif admin_zones == 'n0':
-            base_shapefile = cg_n0
-        elif admin_zones == 'n1':
-            base_shapefile = cg_n1
-        elif admin_zones == 'n2':
-            base_shapefile = cg_n2
-        else:
-            base_shapefile = cg_n3
-    elif ltser_site == 'dn':
-        if admin_zones == 'n0':
-            base_shapefile = dn_n0
-        elif admin_zones == 'n1':
-            base_shapefile = dn_n1
-        elif admin_zones == 'n2':
-            base_shapefile = dn_n2
-        else:
-            base_shapefile = dn_n3
-    elif ltser_site == 'ew':
-        if admin_zones == 'n0':
-            base_shapefile = ew_n0
-        elif admin_zones == 'n1':
-            base_shapefile = ew_n1
-        elif admin_zones == 'n2':
-            base_shapefile = ew_n2
-        else:
-            base_shapefile = ew_n3
-    else:
-        base_shapefile = cg_dz
-    
+    # dynamically load shapefile based on function input
+    root = os.getcwd()
+    base_shapefile_path = os.path.join(root,'shapefiles','deims',ltser_site,admin_zones,'boundaries.shp')
+    base_shapefile = gpd.read_file(base_shapefile_path)
+
     ltser_site_name_dict = {
         'aa': 'LTSER Zone Atelier Alpes',
         'bi': 'Braila Islands',
