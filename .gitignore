@@ -1,4 +1,5 @@
 packrat/lib*/
+packrat/src/
 packrat/packrat.opts
 packrat/init.R
 .Rproj.user
