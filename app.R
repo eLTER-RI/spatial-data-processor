@@ -2,8 +2,9 @@
 packrat::on()
 
 library(shiny)
-library(tidyverse)
 library(reticulate)
+library(dplyr)
+library(readr)
 
 ### preamble
 # data

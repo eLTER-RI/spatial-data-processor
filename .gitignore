@@ -1,4 +1,6 @@
 packrat/lib*/
+packrat/packrat.opts
+packrat/init.R
 .Rproj.user
 .Rhistory
 .Rprofile
