@@ -224,18 +224,18 @@ server <- function(input,output){
     tabular_output <- reactive({
         user_input <- input$tabular_data
         if(is.null(user_input)){
-            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping)
+            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key)
         }
         else{
             infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping)
+            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping,input$plot_key)
         }
     })
     output$wf2_columns <- renderUI({
         user_input <- input$tabular_data
         if(is.null(user_input)){
             selectInput(
-                inputId = "plot_column",
+                inputId = "plot_key",
                 label = "Choose column to plot",
                 # [-1] drops the first column, i.e. the ID
                 choices = names(test_births)[-1],
@@ -245,7 +245,7 @@ server <- function(input,output){
         else{
             infile <- read_csv(user_input$datapath)
             selectInput(
-                inputId = "plot_column",
+                inputId = "plot_key",
                 label = "Choose column to plot",
                 # [-1] drops the first column, i.e. the ID
                 choices = names(infile)[-1],

@@ -99,7 +99,7 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
 
 
 # "non-gridded" workflow
-def aggregateTabularDataset(dataset,ltser_site,admin_zones):
+def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key):
     # prepare merge, starting with shapefile data/metadata
     if ltser_site == 'aa':
         if admin_zones == 'n0':
@@ -169,8 +169,7 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones):
     admin_zones_name = admin_zones_name_dict[admin_zones]
 
     right_on_key = dataset.columns[0]
-    plot_key = dataset.columns[len(dataset.columns)-1]
-    
+
     # merge
     merged_dataset = pd.merge(base_shapefile,dataset,how='left',left_on='zone_id',right_on=right_on_key)
     
