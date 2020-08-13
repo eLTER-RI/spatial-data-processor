@@ -134,13 +134,7 @@ ui <- fluidPage(
             # second workflow
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
-                helpText("2: select data"),
-                selectInput(
-                    inputId = "active_data",
-                    label = "Choose data",
-                    choices = c("Scottish births"),
-                    multiple = FALSE
-                ),
+                helpText("2: select data and active column"),
                 fileInput(
                     inputId = "tabular_data",
                     label = "Alternatively, upload your data here",
@@ -149,6 +143,7 @@ ui <- fluidPage(
                                "text/comma-separated-values,text/plain",
                                ".csv")
                 ),
+                uiOutput("wf2_columns"),
                 helpText("3: describe data and choose comparison site"),
                 selectInput(
                     inputId = "data_grouping",
@@ -234,6 +229,28 @@ server <- function(input,output){
         else{
             infile <- read_csv(user_input$datapath)
             aggregateTabularDataset(infile,input$comparison_site,input$data_grouping)
+        }
+    })
+    output$wf2_columns <- renderUI({
+        user_input <- input$tabular_data
+        if(is.null(user_input)){
+            selectInput(
+                inputId = "plot_column",
+                label = "Choose column to plot",
+                # [-1] drops the first column, i.e. the ID
+                choices = names(test_births)[-1],
+                multiple = FALSE
+            )
+        }
+        else{
+            infile <- read_csv(user_input$datapath)
+            selectInput(
+                inputId = "plot_column",
+                label = "Choose column to plot",
+                # [-1] drops the first column, i.e. the ID
+                choices = names(infile)[-1],
+                multiple = FALSE
+            )
         }
     })
     
