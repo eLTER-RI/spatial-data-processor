@@ -181,6 +181,10 @@ ui <- fluidPage(
                 downloadButton(
                     outputId = "tabular_download",
                     label = "Download data"
+                ),
+                downloadButton(
+                    outputId = "tabular_plot_download",
+                    label = "Download plot"
                 )
             )
         )
@@ -224,11 +228,11 @@ server <- function(input,output){
     tabular_output <- reactive({
         user_input <- input$tabular_data
         if(is.null(user_input)){
-            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key)
+            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key,"Births")
         }
         else{
             infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping,input$plot_key)
+            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping,input$plot_key,input$tabular_data_name)
         }
     })
     output$wf2_columns <- renderUI({
@@ -244,12 +248,18 @@ server <- function(input,output){
         }
         else{
             infile <- read_csv(user_input$datapath)
-            selectInput(
+            list(selectInput(
                 inputId = "plot_key",
                 label = "Choose column to plot",
                 # [-1] drops the first column, i.e. the ID
                 choices = names(infile)[-1],
                 multiple = FALSE
+            ),
+            textInput(
+                inputId = "tabular_data_name",
+                label = "What is this dataset called?",
+                value = "Custom"
+            )
             )
         }
     })
@@ -264,7 +274,7 @@ server <- function(input,output){
     output$raster_plot <- renderImage({
         replot <- raster_output()
         list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
-    }, deleteFile = TRUE)
+    }, deleteFile = FALSE)
     
     output$tabular_download <- downloadHandler(
         filename = "aggregated-data.csv",
@@ -274,8 +284,14 @@ server <- function(input,output){
     
     output$tabular_plot <- renderImage({
         replot <- tabular_output()
-        list(src="/tmp/preview.png",alt="Plot of aggregated data")
-    }, deleteFile = TRUE)
+        list(src="/tmp/plot.png",alt="Plot of aggregated data")
+    }, deleteFile = FALSE)
+    
+    output$tabular_plot_download <- downloadHandler(
+        filename = "plot.png",
+        content = function(file){
+            file.copy("/tmp/plot.png",file)
+        })
 }
 
 shinyApp(ui,server)

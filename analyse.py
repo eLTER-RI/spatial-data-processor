@@ -99,7 +99,7 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
 
 
 # "non-gridded" workflow
-def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key):
+def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
     # prepare merge, starting with shapefile data/metadata
     if ltser_site == 'aa':
         if admin_zones == 'n0':
@@ -180,10 +180,10 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key):
     cax = divider.append_axes("right", size="5%", pad=0.1)
     # additional formatting
     ax.set_axis_off()
-    ax.set_title('{} data cropped to {} by {}.'.format('Births',ltser_site_name,admin_zones_name))
+    ax.set_title('{} data cropped to {} by {}'.format(plot_title,ltser_site_name,admin_zones_name))
     # plot output, save to temporary image and close plot to save memory
     merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
-    fig.savefig('/tmp/preview.png')
+    fig.savefig('/tmp/plot.png')
     plt.close(fig)
     
     return merged_dataset.drop(columns=[right_on_key,'geometry'])
