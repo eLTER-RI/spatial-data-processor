@@ -177,6 +177,10 @@ ui <- fluidPage(
                 downloadButton(
                     outputId = "raster_download",
                     label = "Download data"
+                ),
+                downloadButton(
+                    outputId = "raster_plot_download",
+                    label = "Download plot"
                 )
             ),
             conditionalPanel(
@@ -277,8 +281,14 @@ server <- function(input,output){
     
     output$raster_plot <- renderImage({
         replot <- raster_output()
-        list(src="/tmp/crop-preview.png",alt="Plot of cropped data")
+        list(src="/tmp/crop.png",alt="Plot of cropped data")
     }, deleteFile = FALSE)
+    
+    output$raster_plot_download <- downloadHandler(
+        filename = "plot.png",
+        content = function(file){
+            file.copy("/tmp/crop.png",file)
+        })
     
     output$tabular_download <- downloadHandler(
         filename = "aggregated-data.csv",

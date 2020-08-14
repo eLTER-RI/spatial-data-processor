@@ -116,7 +116,7 @@ def cropRasterDataset(dataset,zone_type,region):
         dest.close()
 
     ax.imshow(out_image[0],norm=colors.LogNorm(vmin=1e-2, vmax=200))
-    fig.savefig('/tmp/crop-preview.png')
+    fig.savefig('/tmp/crop.png')
     plt.close(fig)
     
     return 0
