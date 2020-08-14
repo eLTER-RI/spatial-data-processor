@@ -47,26 +47,13 @@ ui <- fluidPage(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
                 helpText("2: select data"),
-                # wf1 input 1
-                selectInput(
-                    inputId = "active_raster_data",
-                    label = "Choose data",
-                    choices = c("NOx data"),
-                    multiple = FALSE
-                ),
                 fileInput(
                     inputId = "raster_data",
-                    label = "Alternatively, upload your data here",
+                    label = "Upload your data here",
                     multiple = FALSE,
                     accept = c("image/tiff")
                 ),
-                
-                # This section can be reintroduced if/when date filtering becomes relevant 
-                #helpText("3: filter by date and region"),
-                #dateRangeInput(
-                #    inputId = "date_filter",
-                #    label = "Select dates to include"
-                #),
+                uiOutput("wf1_title"),
                 helpText("3: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
                 # toggle NUTS or DEIMS
                 radioButtons(
@@ -141,7 +128,7 @@ ui <- fluidPage(
                 helpText("2: select data and active column"),
                 fileInput(
                     inputId = "tabular_data",
-                    label = "Alternatively, upload your data here",
+                    label = "Upload your data here",
                     multiple = FALSE,
                     accept = c("text/csv",
                                "text/comma-separated-values,text/plain",
@@ -207,13 +194,15 @@ server <- function(input,output){
         {
             if(is.null(user_input)){
                 dataset <- "nox"
+                plot_title <- "NOx"
                 }
             else{
                 dataset <- user_input$datapath
+                plot_title <- input$raster_data_name
                 }
         }
         if(input$region_toggle == "DEIMS"){
-            cropRasterDataset(dataset,"deims",input$deims_filter)
+            cropRasterDataset(dataset,"deims",input$deims_filter,plot_title)
         }
         else{
             if(input$nutslevel_filter == "0"){
@@ -228,7 +217,20 @@ server <- function(input,output){
             if(input$nutslevel_filter == "3"){
                 crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
             }
-            cropRasterDataset(dataset,"nuts",crop_id)
+            cropRasterDataset(dataset,"nuts",crop_id,plot_title)
+        }
+    })
+    output$wf1_title <- renderUI({
+        user_input <- input$raster_data
+        if(is.null(user_input)){
+            #pass
+        }
+        else{
+            textInput(
+                inputId = "raster_data_name",
+                label = "What is this dataset called?",
+                value = "Custom"
+            )
         }
     })
     

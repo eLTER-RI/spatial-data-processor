@@ -70,7 +70,7 @@ admin_zones_name_dict = {
     }
 
 # "gridded" workflow
-def cropRasterDataset(dataset,zone_type,region):
+def cropRasterDataset(dataset,zone_type,region,plot_title):
     if dataset == 'nox':
         active_dataset = nox
     else:
@@ -97,11 +97,11 @@ def cropRasterDataset(dataset,zone_type,region):
     
     if zone_type == 'nuts':
         out_image, out_transform = riomask.mask(active_dataset, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
-        ax.set_title('{} dataset cropped to boundaries of NUTS {}.'.format('NOx',region))
+        ax.set_title('{} data cropped to NUTS region {}'.format(plot_title,region))
     elif zone_type == 'deims':
         ltser_site_name = ltser_site_name_dict[region]
         out_image, out_transform = riomask.mask(active_dataset, ltser_site.geometry, crop=True)
-        ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx',ltser_site_name))
+        ax.set_title('{} data cropped to {}'.format(plot_title,ltser_site_name))
     
     out_meta = active_dataset.meta
     out_meta.update({
