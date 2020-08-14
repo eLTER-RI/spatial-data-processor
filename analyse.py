@@ -18,7 +18,7 @@ nox = rio.open('data/agricn2o17.asc')
 
 # wf1 shapefiles
 # nuts
-all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
+base_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
 # deims
 aa = gpd.read_file('shapefiles/deims/atelier-alpes/raw/boundaries.shp')
 bi = gpd.read_file('shapefiles/deims/braila-islands/raw/boundaries.shp')
@@ -54,20 +54,44 @@ ew_n1 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts1/boundaries.shp')
 ew_n2 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts2/boundaries.shp')
 ew_n3 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts3/boundaries.shp')
 
-
+ltser_site_name_dict = {
+    'aa': 'LTSER Zone Atelier Alpes',
+    'bi': 'Braila Islands',
+    'cg': 'Cairngorms National Park',
+    'dn': 'Doñana LTSER',
+    'ew': 'LTSER Platform Eisenwurzen',
+    }
+admin_zones_name_dict = {
+    'n0': 'NUTS level 0',
+    'n1': 'NUTS level 1',
+    'n2': 'NUTS level 2',
+    'n3': 'NUTS level 3',
+    'dz': 'Scottish data zones'
+    }
 
 # "gridded" workflow
-def cropRasterDataset(dataset,zone_type,region='cairngorms'):
-    global all_nuts
-    global cg
+def cropRasterDataset(dataset,zone_type,region):
     if dataset == 'nox':
         active_dataset = nox
     else:
         active_dataset = rio.open(dataset)
-
-    all_nuts = all_nuts.to_crs(active_dataset.crs)
-    cg = cg.to_crs(active_dataset.crs)
     
+    if region == 'aa':
+        ltser_site = aa
+    elif region == 'bi':
+        ltser_site = bi
+    elif region == 'cg':
+        ltser_site = cg
+    elif region == 'dn':
+        ltser_site = dn
+    else:
+        ltser_site = ew
+        
+    all_nuts = base_nuts
+
+    ltser_site = ltser_site.to_crs(active_dataset.crs)
+    all_nuts = all_nuts.to_crs(active_dataset.crs)
+
     fig, ax = plt.subplots()
     ax.set_axis_off()
     
@@ -75,8 +99,9 @@ def cropRasterDataset(dataset,zone_type,region='cairngorms'):
         out_image, out_transform = riomask.mask(active_dataset, all_nuts[all_nuts['NUTS_ID']==region].geometry, crop=True)
         ax.set_title('{} dataset cropped to boundaries of NUTS {}.'.format('NOx',region))
     elif zone_type == 'deims':
-        out_image, out_transform = riomask.mask(active_dataset, cg.geometry, crop=True)
-        ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx','Cairngorms LTSER'))
+        ltser_site_name = ltser_site_name_dict[region]
+        out_image, out_transform = riomask.mask(active_dataset, ltser_site.geometry, crop=True)
+        ax.set_title('{} dataset cropped to boundaries of {}.'.format('NOx',ltser_site_name))
     
     out_meta = active_dataset.meta
     out_meta.update({
@@ -151,21 +176,8 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
     else:
         base_shapefile = cg_dz
     
-    ltser_site_name_dict = {
-        'aa': 'LTSER Zone Atelier Alpes',
-        'bi': 'Braila Islands',
-        'cg': 'Cairngorms National Park',
-        'dn': 'Doñana LTSER',
-        'ew': 'LTSER Platform Eisenwurzen',
-    }
+
     ltser_site_name = ltser_site_name_dict[ltser_site]
-    admin_zones_name_dict = {
-        'n0': 'NUTS level 0',
-        'n1': 'NUTS level 1',
-        'n2': 'NUTS level 2',
-        'n3': 'NUTS level 3',
-        'dz': 'Scottish data zones'
-    }
     admin_zones_name = admin_zones_name_dict[admin_zones]
 
     right_on_key = dataset.columns[0]

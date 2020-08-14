@@ -8,11 +8,11 @@ library(readr)
 
 ### preamble
 # data
-test_births <- read_csv('data/births-cleaned.csv')
+test_births <- read_csv("data/births-cleaned.csv")
 
 # NUTS 2016 definitions
 # read static metadata on NUTS regions generated in Python
-nuts_all_levels <- read_csv("shapefiles/zones/nuts2016/uk-all.csv")
+nuts_all_levels <- read_csv("shapefiles/zones/nuts2016/cached-nuts-all.csv")
 nuts_level0_names <- filter(nuts_all_levels, LEVL_CODE == 0)$NICENAME
 nuts_level1_names <- filter(nuts_all_levels, LEVL_CODE == 1)$NICENAME
 nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
@@ -88,7 +88,8 @@ ui <- fluidPage(
                             inputId = "nuts_region_0_filter",
                             label = "NUTS region",
                             choices = nuts_level0_names,
-                            multiple = FALSE
+                            multiple = FALSE,
+                            selected = "UK - UNITED KINGDOM"
                         )
                     ),
                     conditionalPanel(
@@ -97,7 +98,8 @@ ui <- fluidPage(
                             inputId = "nuts_region_1_filter",
                             label = "NUTS region",
                             choices = nuts_level1_names,
-                            multiple = FALSE
+                            multiple = FALSE,
+                            selected = "UKD - NORTH WEST (ENGLAND)"
                         )
                     ),
                     conditionalPanel(
@@ -106,7 +108,8 @@ ui <- fluidPage(
                             inputId = "nuts_region_2_filter",
                             label = "NUTS region",
                             choices = nuts_level2_names,
-                            multiple = FALSE
+                            multiple = FALSE,
+                            selected = "UKD4 - Lancashire"
                         )
                     ),
                     conditionalPanel(
@@ -115,7 +118,8 @@ ui <- fluidPage(
                             inputId = "nuts_region_3_filter",
                             label = "NUTS region",
                             choices = nuts_level3_names,
-                            multiple = FALSE
+                            multiple = FALSE,
+                            selected = "UKD44 - Lancaster and Wyre"
                         )
                     )
                 ),
@@ -124,9 +128,9 @@ ui <- fluidPage(
                     condition = "input.region_toggle === 'DEIMS'",
                     selectInput(
                         inputId = "deims_filter",
-                        label = "Deims site (currently always maps Cairngorms as other sites don't fit example data)",
+                        label = "Deims site",
                         choices = deims_LTSER_choices,
-                        selected = deims_LTSER_choices[3],
+                        selected = "cg",
                         multiple = FALSE
                     )
                 )
@@ -205,7 +209,7 @@ server <- function(input,output){
                 }
         }
         if(input$region_toggle == "DEIMS"){
-            cropRasterDataset(dataset,"deims")
+            cropRasterDataset(dataset,"deims",input$deims_filter)
         }
         else{
             if(input$nutslevel_filter == "0"){
