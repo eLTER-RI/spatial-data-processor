@@ -38,11 +38,19 @@ bi_n1 = gpd.read_file('shapefiles/deims/braila-islands/nuts1/boundaries.shp')
 bi_n2 = gpd.read_file('shapefiles/deims/braila-islands/nuts2/boundaries.shp')
 bi_n3 = gpd.read_file('shapefiles/deims/braila-islands/nuts3/boundaries.shp')
 # cairngorms
-cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/boundaries.shp')
 cg_n0 = gpd.read_file('shapefiles/deims/cairngorms/nuts0/boundaries.shp')
 cg_n1 = gpd.read_file('shapefiles/deims/cairngorms/nuts1/boundaries.shp')
 cg_n2 = gpd.read_file('shapefiles/deims/cairngorms/nuts2/boundaries.shp')
 cg_n3 = gpd.read_file('shapefiles/deims/cairngorms/nuts3/boundaries.shp')
+cg_dz = gpd.read_file('shapefiles/deims/cairngorms/scot-data-zones/boundaries.shp')
+cg_iz = gpd.read_file('shapefiles/deims/cairngorms/intermediate-zones/boundaries.shp')
+cg_hb = gpd.read_file('shapefiles/deims/cairngorms/health-boards/boundaries.shp')
+cg_ia = gpd.read_file('shapefiles/deims/cairngorms/integration-authorities/boundaries.shp')
+cg_up = gpd.read_file('shapefiles/deims/cairngorms/uk-constituencies/boundaries.shp')
+cg_sp = gpd.read_file('shapefiles/deims/cairngorms/scottish-constituencies/boundaries.shp')
+cg_sc = gpd.read_file('shapefiles/deims/cairngorms/councils/boundaries.shp')
+cg_ew = gpd.read_file('shapefiles/deims/cairngorms/electoral-wards/boundaries.shp')
+cg_tw = gpd.read_file('shapefiles/deims/cairngorms/ttw-areas/boundaries.shp')
 # donana
 dn_n0 = gpd.read_file('shapefiles/deims/donana/nuts0/boundaries.shp')
 dn_n1 = gpd.read_file('shapefiles/deims/donana/nuts1/boundaries.shp')
@@ -66,7 +74,15 @@ admin_zones_name_dict = {
     'n1': 'NUTS level 1',
     'n2': 'NUTS level 2',
     'n3': 'NUTS level 3',
-    'dz': 'Scottish data zones'
+    'dz': 'data zones',
+    'iz': 'intermediate zones',
+    'hb': 'health boards',
+    'ia': 'integration authorities',
+    'up': 'UK parliament constituencies',
+    'sp': 'Scottish parliament constituencies',
+    'sc': 'councils',
+    'ew': 'electoral wards',
+    'tw': 'travel-to-work areas',
     }
 
 # "gridded" workflow
@@ -147,6 +163,22 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
     elif ltser_site == 'cg':
         if admin_zones == 'dz':
             base_shapefile = cg_dz
+        elif admin_zones == 'iz':
+            base_shapefile = cg_iz
+        elif admin_zones == 'hb':
+            base_shapefile = cg_hb
+        elif admin_zones == 'ia':
+            base_shapefile = cg_ia
+        elif admin_zones == 'up':
+            base_shapefile = cg_up
+        elif admin_zones == 'sp':
+            base_shapefile = cg_sp
+        elif admin_zones == 'sc':
+            base_shapefile = cg_sc
+        elif admin_zones == 'ew':
+            base_shapefile = cg_ew
+        elif admin_zones == 'tw':
+            base_shapefile = cg_tw
         elif admin_zones == 'n0':
             base_shapefile = cg_n0
         elif admin_zones == 'n1':

@@ -140,12 +140,21 @@ ui <- fluidPage(
                     inputId = "data_grouping",
                     label = "This data is grouped by...",
                     choices = c(
-                        "Scottish data zones" = "dz",
                         "NUTS 0 regions" = "n0",
                         "NUTS 1 regions" = "n1",
                         "NUTS 2 regions" = "n2",
-                        "NUTS 3 regions" = "n3"
+                        "NUTS 3 regions" = "n3",
+                        "Data zones (Scotland)" = "dz",
+                        "Intermediate zones (Scotland)" = "iz",
+                        "Health boards (Scotland)" = "hb",
+                        "Health integration authorities (Scotland)" = "ia",
+                        "UK parliamentary constituencies (Scotland)" = "up",
+                        "Scottish parliamentary constituencies (Scotland)" = "sp",
+                        "Councils (Scotland)" = "sc",
+                        "Electoral wards (Scotland)" = "ew",
+                        "Travel-to-work areas (Scotland)" = "tw"
                         ),
+                    selected = "dz",
                     multiple = FALSE
                 ),
                 selectInput(
