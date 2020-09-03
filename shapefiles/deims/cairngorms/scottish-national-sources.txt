@@ -1,0 +1,21 @@
+data zone
+	https://data.gov.uk/dataset/ab9f1f20-3b7f-4efa-9bd2-239acf63b540/data-zone-boundaries-2011
+intermediate zone
+	https://data.gov.uk/dataset/133d4983-c57d-4ded-bc59-390c962ea280/intermediate-zone-boundaries-2011
+electoral ward (OS - district_borough_unitary_ward_region)
+	https://data.gov.uk/dataset/195bcb5f-7db3-42b2-8d9f-b4d6fad959f3/scottish-electoral-wards
+health board
+	https://data.gov.uk/dataset/27d0fe5f-79bb-4116-aec9-a8e565ff756a/nhs-health-boards
+scot. constituency (OS - scotland_and_wales_const_region)
+	https://data.gov.uk/dataset/e8eae7cf-3aa3-4d09-bfe8-3d5354bf0d63/scottish-parliamentary-constituencies
+uk constituency (OS - westminster_const_region)
+	https://data.gov.uk/dataset/1491e274-996c-4baa-9c6f-483af35180ed/uk-parliamentary-constituencies
+council (local authority) (OS - district_borough_unitary_region)
+	https://data.gov.uk/dataset/9187c32a-7110-4db7-b61d-902800aaae49/scottish-local-authority-areas
+H integration authority
+	https://data.gov.uk/dataset/c652c3b4-dcd3-4c9d-8738-e0934afb8953/health-integration-authorities
+travel to work area
+	First result, error accessing 03/09/2020
+		https://data.gov.uk/dataset/1b3604bc-8fd3-4b01-a0fd-0f3bf7fcd160/travel-to-work-areas-ttwa-boundaries
+	Second result, used
+	https://data.gov.uk/dataset/1bd52450-9521-4495-bfe1-8b5d762cf37e/travel-to-work-areas-december-2011-generalised-clipped-boundaries-in-united-kingdom

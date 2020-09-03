@@ -56,12 +56,30 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
         
         # drop debug_geometry column so output is identical to non-debug
         gdf_out.drop(columns='debug_geometry',inplace=True)
+        gdf_out = gdf_out.set_geometry('geometry')
         return gdf_out
     else:
         return gdf_out
 
-site = gpd.read_file('path/to/shapefile')
-zones = gpd.read_file('path/to/shapefile')
-export = decomposeSite(site,zones,'ID_here','Name_here',debug=False)
+# wrapper which was quick at generating Scottish zone shapefiles
+# (other than data zone) en masse. Requires manual check for the
+# zone name and zone ID parameters for now but still saves time.
+#
+# zone_shapefile - filename of a shapefile describing zones
+# destination - filename to save the output to
+# other kwargs are passed to the decomposeSite function
 
-export.to_file('path/to/repo/folder/deims-site-admin-zones.shp')
+def shapefileGen(zone_shapefile,destination,**kwargs):
+    try:
+        sf_in = gpd.read_file('zip://'+zone_shapefile)
+    except:
+        sf_in = gpd.read_file(zone_shapefile)
+    sf_out = decomposeSite(admin_zones=sf_in,**kwargs)
+    print(sf_out)
+    sf_out.to_file(destination)
+    
+    return 0
+
+ltser_site = gpd.read_file('path/to/shapefile')
+
+shapefileGen('path/to/zones/shapefile','../deims/site/zone/boundaries.shp',ltser_site=ltser_site,zone_id='ID',zone_name='Name',debug=True)
