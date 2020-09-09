@@ -5,6 +5,7 @@ library(shiny)
 library(reticulate)
 library(dplyr)
 library(readr)
+library(readxl)
 
 ### preamble
 # data
@@ -130,10 +131,11 @@ ui <- fluidPage(
                     inputId = "tabular_data",
                     label = "Upload your data here",
                     multiple = FALSE,
-                    accept = c("text/csv",
-                               "text/comma-separated-values,text/plain",
+                    accept = c(".xls",
+                               ".xlsx",
                                ".csv")
                 ),
+                uiOutput("wf2_user_input_sheets"),
                 uiOutput("wf2_columns"),
                 helpText("3: describe data and choose comparison site"),
                 selectInput(
@@ -232,7 +234,7 @@ server <- function(input,output){
     output$wf1_title <- renderUI({
         user_input <- input$raster_data
         if(is.null(user_input)){
-            #pass
+            # pass
         }
         else{
             textInput(
@@ -244,19 +246,42 @@ server <- function(input,output){
     })
     
     # wf2
-    tabular_output <- reactive({
-        user_input <- input$tabular_data
-        if(is.null(user_input)){
-            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key,"Births")
+    # reads input file, if it exists, and "returns" tibble
+    wf2_user_input <- reactive({
+        if(is.null(input$tabular_data)){
+            # pass
         }
         else{
-            infile <- read_csv(user_input$datapath)
-            aggregateTabularDataset(infile,input$comparison_site,input$data_grouping,input$plot_key,input$tabular_data_name)
+            if(endsWith(input$tabular_data$datapath,"csv")){
+                read_csv(input$tabular_data$datapath)
+            }
+            else{
+                read_excel(input$tabular_data$datapath,input$wf2_sheet_key)
+            }
         }
     })
+    # creates sheet select box if Excel uploaded
+    output$wf2_user_input_sheets <- renderUI({
+        if(is.null(input$tabular_data)){
+            # pass
+        }
+        else{
+            if(endsWith(input$tabular_data$datapath,"csv")){
+                # pass
+            }
+            else{
+                selectInput(
+                    inputId = "wf2_sheet_key",
+                    label = "Choose sheet to use",
+                    choices = excel_sheets(input$tabular_data$datapath),
+                    multiple = FALSE
+                )
+            }
+        }
+    })
+    # creates column selection based on upload + Excel sheet
     output$wf2_columns <- renderUI({
-        user_input <- input$tabular_data
-        if(is.null(user_input)){
+        if(is.null(input$tabular_data)){
             selectInput(
                 inputId = "plot_key",
                 label = "Choose column to plot",
@@ -266,20 +291,28 @@ server <- function(input,output){
             )
         }
         else{
-            infile <- read_csv(user_input$datapath)
             list(selectInput(
                 inputId = "plot_key",
                 label = "Choose column to plot",
                 # [-1] drops the first column, i.e. the ID
-                choices = names(infile)[-1],
+                choices = names(wf2_user_input())[-1],
                 multiple = FALSE
-            ),
-            textInput(
-                inputId = "tabular_data_name",
-                label = "What is this dataset called?",
-                value = "Custom"
+                ),
+                textInput(
+                    inputId = "tabular_data_name",
+                    label = "What is this dataset called?",
+                    value = "Custom"
+                    )
             )
-            )
+            }
+    })
+    # combines all inputs and returns tibble for download
+    tabular_output <- reactive({
+        if(is.null(input$tabular_data)){
+            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key,"Births")
+        }
+        else{
+            aggregateTabularDataset(wf2_user_input(),input$comparison_site,input$data_grouping,input$plot_key,input$tabular_data_name)
         }
     })
     
