@@ -37,6 +37,6 @@ Data
 Shapefiles
 - DEIMS sites: https://deims.org/
 - EU NUTS regions: https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts
-- Scottish data zones: https://data.gov.uk/dataset/ab9f1f20-3b7f-4efa-9bd2-239acf63b540/data-zone-boundaries-2011
+- National statistical zone spatial data is cited in each relevant DEIMS directory (e.g. shapefiles/deims/cairngorms for Scottish data)
 
 European Commission NUTS 2016 data © EuroGeographics for the administrative boundaries
