@@ -8,8 +8,6 @@ library(readr)
 library(readxl)
 
 ### preamble
-# data
-test_births <- read_csv("data/births-cleaned.csv")
 
 # NUTS 2016 definitions
 # read static metadata on NUTS regions generated in Python
@@ -200,18 +198,12 @@ ui <- fluidPage(
 server <- function(input,output){
     # reactive intermediates
     # wf1
+    # called after user has uploaded data
     raster_output <- reactive({
-        user_input <- input$raster_data
-        {
-            if(is.null(user_input)){
-                dataset <- "nox"
-                plot_title <- "NOx"
-                }
-            else{
-                dataset <- user_input$datapath
-                plot_title <- input$raster_data_name
-                }
-        }
+        # process user upload, taking its validity for granted
+        dataset <- input$raster_data$datapath
+        plot_title <- input$raster_data_name
+        
         if(input$region_toggle == "DEIMS"){
             cropRasterDataset(dataset,"deims",input$deims_filter,plot_title)
         }
@@ -232,8 +224,7 @@ server <- function(input,output){
         }
     })
     output$wf1_title <- renderUI({
-        user_input <- input$raster_data
-        if(is.null(user_input)){
+        if(is.null(input$raster_data)){
             # pass
         }
         else{
@@ -282,13 +273,7 @@ server <- function(input,output){
     # creates column selection based on upload + Excel sheet
     output$wf2_columns <- renderUI({
         if(is.null(input$tabular_data)){
-            selectInput(
-                inputId = "plot_key",
-                label = "Choose column to plot",
-                # [-1] drops the first column, i.e. the ID
-                choices = names(test_births)[-1],
-                multiple = FALSE
-            )
+            # pass
         }
         else{
             list(selectInput(
@@ -309,7 +294,7 @@ server <- function(input,output){
     # combines all inputs and returns tibble for download
     tabular_output <- reactive({
         if(is.null(input$tabular_data)){
-            aggregateTabularDataset(test_births,input$comparison_site,input$data_grouping,input$plot_key,"Births")
+            # pass
         }
         else{
             aggregateTabularDataset(wf2_user_input(),input$comparison_site,input$data_grouping,input$plot_key,input$tabular_data_name)
@@ -324,8 +309,13 @@ server <- function(input,output){
         })
     
     output$raster_plot <- renderImage({
-        replot <- raster_output()
-        list(src="/tmp/crop.png",alt="Plot of cropped data")
+        if(is.null(input$raster_data)){
+            list(src="eLTER-logo.png",alt="eLTER logo",width=645,height=233)
+        }
+        else{
+            replot <- raster_output()
+            list(src="/tmp/crop.png",alt="Plot of cropped data")
+        }
     }, deleteFile = FALSE)
     
     output$raster_plot_download <- downloadHandler(
@@ -341,8 +331,13 @@ server <- function(input,output){
         })
     
     output$tabular_plot <- renderImage({
-        replot <- tabular_output()
-        list(src="/tmp/plot.png",alt="Plot of aggregated data")
+        if(is.null(input$tabular_data)){
+            list(src="eLTER-logo.png",alt="eLTER logo",width=645,height=233)
+        }
+        else{
+            replot <- tabular_output()
+            list(src="/tmp/plot.png",alt="Plot of aggregated data")            
+        }
     }, deleteFile = FALSE)
     
     output$tabular_plot_download <- downloadHandler(
