@@ -18,7 +18,8 @@ nox = rio.open('data/agricn2o17.asc')
 
 # wf1 shapefiles
 # nuts
-base_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
+#base_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
+all_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
 # deims
 aa = gpd.read_file('shapefiles/deims/atelier-alpes/raw/boundaries.shp')
 bi = gpd.read_file('shapefiles/deims/braila-islands/raw/boundaries.shp')
@@ -103,10 +104,13 @@ def cropRasterDataset(dataset,zone_type,region,plot_title):
     else:
         ltser_site = ew
         
-    all_nuts = base_nuts
+    #all_nuts = base_nuts
 
-    ltser_site = ltser_site.to_crs(active_dataset.crs)
-    all_nuts = all_nuts.to_crs(active_dataset.crs)
+    global all_nuts
+    if ltser_site.crs != active_dataset.crs:
+        ltser_site = ltser_site.to_crs(active_dataset.crs)
+    if all_nuts.crs != active_dataset.crs:
+        all_nuts = all_nuts.to_crs(active_dataset.crs)
 
     fig, ax = plt.subplots()
     ax.set_axis_off()
