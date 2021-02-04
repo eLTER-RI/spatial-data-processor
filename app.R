@@ -7,6 +7,10 @@ library(dplyr)
 library(readr)
 library(readxl)
 
+# set global shiny options
+# use powers of 1024 for kilo/Mega/...bytes
+options(shiny.maxRequestSize=2*1024^3)
+
 ### preamble
 
 # NUTS 2016 definitions
