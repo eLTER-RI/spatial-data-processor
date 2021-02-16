@@ -19,7 +19,8 @@ Developed in UKCEH's [datalabs](https://github.com/NERC-CEH/datalab) platform.
 - a compatible libpython shared library (installing python3-dev on Linux distributions should ensure this; see [this issue](https://github.com/rstudio/reticulate/issues/637))
 - pip/python3 venv module
 
-These dependencies are all provided in the standard datalabs RStudio environment. Python and R versions other than 3.5.3 remain untested, although more recent versions are likely to work
+These dependencies are all provided in the standard datalabs RStudio environment.
+Python and R versions other than 3.5.3 remain untested, although more recent versions are likely to work
 
 ### Setup
 - Clone the repo
@@ -27,7 +28,8 @@ These dependencies are all provided in the standard datalabs RStudio environment
 - Create a virtual environment called `reticulate-venv` in the root directory
 - Install python dependencies from requirements.txt, with `source reticulate-venv/bin/activate && pip install -r requirements.txt` on Linux
 
-For Linux platforms (and possibly others supporting Bash), `setup.sh` is provided to automate the steps after cloning. Simply run `./setup.sh` in a terminal.
+For Linux platforms (and possibly others supporting Bash), `setup.sh` is provided to automate the steps after cloning.
+Simply run `./setup.sh` in a terminal.
 
 ## Sources
 Data
