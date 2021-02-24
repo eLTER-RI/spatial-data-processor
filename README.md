@@ -25,7 +25,7 @@ The cropped data can be downloaded along with a plot which is displayed as a pre
 The second (wf2) works with "tabular" data (e.g. CSV, spreadsheets, etc.) representing observations associated with spatial regions (e.g. counties, census zones).
 The entries corresponding to regions falling within the boundaries of a chosen DEIMS site are filtered, previewed and made available for download, with additional spatial metadata attached.
 The following diagram illustrates the filtering process.
-[blah](documentation/wf2.png)
+![Visual description of workflow 2](documentation/wf2.png)
 
 ## Installation
 The complete system is provided as a service in UKCEH's [datalabs](https://github.com/NERC-CEH/datalab) platform, in which it has been developed.
