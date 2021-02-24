@@ -1,40 +1,41 @@
 # spatial-data-processor
-RShiny app providing templated geospatial data analysis workflows to the eLTER community.
+RShiny app providing an interface for templated data workflows to the eLTER community.
 
 ## About
-### Workflows
-- clipping of geospatial raster data by user-specified boundaries ("gridded data", workflow 1)
-- aggregation of tabular data grouped by spatial regions, within the bounds of a DEIMS site ("non-gridded data", workflow 2)
+This README describes the repo at a high level.
+In the documentation folder there is additionally:
+- *tutorials* for beginners
+- *how-to* guides covering specific topics in detail
+- *reference* materials which document the technical details of the system as a whole
 
-### Architecture
-RShiny provides the interactive frontend, while Python 3 handles the analysis.
-Spatial data (see shapefiles) is precomputed with geopandas for performance, leaving interactive SQL-style joins to pandas.
+This repository contains two primary codebases, along with supporting resources:
+- `app.R`, a web-based user interface
+- `analyse.py`, which defines workflows the interface can apply to user data.
+The interface is written in R using the [shiny framework](https://shiny.rstudio.com/).
+The workflows are written in python 3 using third-party libraries, documented with each individual workflow.
 
-Developed in UKCEH's [datalabs](https://github.com/NERC-CEH/datalab) platform.
+## Workflows
+Initially, two workflows have been developed.
+Both extract data relevant to a chosen [DEIMS site](https://deims.org) from input data.
+
+The first (wf1) works with geospatial raster data.
+The user can upload raster data and the data is cropped to the boundaries of the chosen DEIMS site.
+The cropped data can be downloaded along with a plot which is displayed as a preview.
+
+The second (wf2) works with "tabular" data (e.g. CSV, spreadsheets, etc.) representing observations associated with spatial regions (e.g. counties, census zones).
+The entries corresponding to regions falling within the boundaries of a chosen DEIMS site are filtered, previewed and made available for download, with additional spatial metadata attached.
+The following diagram illustrates the filtering process.
+[blah](documentation/wf2.png)
 
 ## Installation
-### Prerequisites
-- R >=3.5.3
-- Python 3 >=3.5.3
-- a compatible libpython shared library (installing python3-dev on Linux distributions should ensure this; see [this issue](https://github.com/rstudio/reticulate/issues/637))
-- pip/python3 venv module
-
-These dependencies are all provided in the standard datalabs RStudio environment.
-Python and R versions other than 3.5.3 remain untested, although more recent versions are likely to work
-
-### Setup
-- Clone the repo
-- Source `setup.R` in an R session to restore the packrat environment
-- Create a virtual environment called `reticulate-venv` in the root directory
-- Install python dependencies from requirements.txt, with `source reticulate-venv/bin/activate && pip install -r requirements.txt` on Linux
-
-For Linux platforms (and possibly others supporting Bash), `setup.sh` is provided to automate the steps after cloning.
-Simply run `./setup.sh` in a terminal.
+The complete system is provided as a service in UKCEH's [datalabs](https://github.com/NERC-CEH/datalab) platform, in which it has been developed.
+You are welcome to install the system elsewhere using the [installation guide](documentation/howto/install.txt) provided.
 
 ## Sources
-Data
+Sample data
 - Nitrous oxide data: https://naei.beis.gov.uk/data/map-uk-das
 - Scottish birth data: https://statistics.gov.scot/home
+- Spain grassland data: https://www.copernicus.eu/
 
 Shapefiles
 - DEIMS sites: https://deims.org/
