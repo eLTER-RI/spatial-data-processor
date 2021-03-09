@@ -29,7 +29,7 @@ The following diagram illustrates the filtering process.
 ![Visual description of workflow 2](documentation/wf2.png)
 
 ## Installation
-The complete system is provided as a service in UKCEH's [datalabs](https://github.com/NERC-CEH/datalab) platform, in which it has been developed.
+The complete system is provided as a service in UKCEH's [datalabs](https://datalab.datalabs.ceh.ac.uk/) platform, in which it has been developed.
 You are welcome to install the system elsewhere using the [installation guide](documentation/howto/install.md) provided.
 
 ## Sources
