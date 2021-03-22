@@ -26,6 +26,8 @@ bi = gpd.read_file('shapefiles/deims/braila-islands/raw/boundaries.shp')
 cg = gpd.read_file('shapefiles/deims/cairngorms/raw/boundaries.shp')
 dn = gpd.read_file('shapefiles/deims/donana/raw/boundaries.shp')
 ew = gpd.read_file('shapefiles/deims/eisenwurzen/raw/boundaries.shp')
+lo = gpd.read_file('shapefiles/deims/lautaret-oisans/raw/boundaries.shp')
+
 
 # wf2 shapefiles
 # atelier alpes
@@ -62,6 +64,11 @@ ew_n0 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts0/boundaries.shp')
 ew_n1 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts1/boundaries.shp')
 ew_n2 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts2/boundaries.shp')
 ew_n3 = gpd.read_file('shapefiles/deims/eisenwurzen/nuts3/boundaries.shp')
+# lautaret-oisans
+lo_n0 = gpd.read_file('shapefiles/deims/lautaret-oisans/nuts0/boundaries.shp')
+lo_n1 = gpd.read_file('shapefiles/deims/lautaret-oisans/nuts1/boundaries.shp')
+lo_n2 = gpd.read_file('shapefiles/deims/lautaret-oisans/nuts2/boundaries.shp')
+lo_n3 = gpd.read_file('shapefiles/deims/lautaret-oisans/nuts3/boundaries.shp')
 
 ltser_site_name_dict = {
     'aa': 'LTSER Zone Atelier Alpes',
@@ -69,6 +76,7 @@ ltser_site_name_dict = {
     'cg': 'Cairngorms National Park',
     'dn': 'Doñana LTSER',
     'ew': 'LTSER Platform Eisenwurzen',
+    'lo': 'LTSER platform Lautaret-Oisans',
     }
 admin_zones_name_dict = {
     'n0': 'NUTS level 0',
@@ -101,8 +109,10 @@ def cropRasterDataset(dataset,zone_type,region,plot_title):
         ltser_site = cg
     elif region == 'dn':
         ltser_site = dn
-    else:
+    elif region == 'ew':
         ltser_site = ew
+    else:
+        ltser_site = lo
         
     #all_nuts = base_nuts
 
@@ -209,6 +219,15 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
             base_shapefile = ew_n2
         else:
             base_shapefile = ew_n3
+    elif ltser_site == 'lo':
+        if admin_zones == 'n0':
+            base_shapefile = lo_n0
+        elif admin_zones == 'n1':
+            base_shapefile = lo_n1
+        elif admin_zones == 'n2':
+            base_shapefile = lo_n2
+        else:
+            base_shapefile = lo_n3
     else:
         base_shapefile = cg_dz
     

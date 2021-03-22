@@ -28,7 +28,8 @@ deims_LTSER_choices <- c(
     "Braila Islands" = "bi",
     "Cairngorms National Park" = "cg",
     "Doñana LTSER" = "dn",
-    "LTSER Platform Eisenwurzen" = "ew")
+    "LTSER Platform Eisenwurzen" = "ew",
+    "LTSER platform Lautaret-Oisans" = "lo")
 
 # reticulate
 use_virtualenv("./reticulate-venv")
