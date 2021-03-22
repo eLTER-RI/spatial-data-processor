@@ -1,0 +1,1 @@
+https://deims.org/geoserver/deims/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=deims:deims_sites_boundaries&srsName=EPSG:4326&format_options=filename:ff1d49b8-47e9-44b3-9621-ac16b93fcfe1_boundaries.zip&CQL_FILTER=deimsid=%27https://deims.org/ff1d49b8-47e9-44b3-9621-ac16b93fcfe1%27&outputFormat=SHAPE-ZIP
