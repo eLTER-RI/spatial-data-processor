@@ -4,7 +4,7 @@ This tutorial will guide you through how to use both of the inbuilt workflows by
 It should take around 10 minutes in total.
 
 Access to the tool, either in [datalabs](https://datalab.datalabs.ceh.ac.uk/) or by an instance you have installed yourself (see the [installation guide](documentation/howto/install.md)) is required.
-You will also need to download `wf1-test-data.tif` and `births-cleaned.csv` from the top-level `data` folder if you haven't cloned the repository to your machine.
+You will also need to download `wf1-test-data.tif` and `scottish-births-cleaned.csv` from the top-level `data` folder if you haven't cloned the repository to your machine.
 
 ## Processing raster data with workflow 1
 ### Introduction

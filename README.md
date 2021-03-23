@@ -33,8 +33,7 @@ The complete system is provided as a service in UKCEH's [datalabs](https://datal
 You are welcome to install the system elsewhere using the [installation guide](documentation/howto/install.md) provided.
 
 ## Sources
-Sample data
-- Nitrous oxide data: https://naei.beis.gov.uk/data/map-uk-das
+Sample data (`/data` folder)
 - Scottish birth data: https://statistics.gov.scot/home
 - Spain grassland data: https://www.copernicus.eu/
 
