@@ -12,10 +12,6 @@ import rasterio.mask as riomask
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-# default data for wf1 - not passed through dynamically since no
-# native conversion of data types via reticulate
-nox = rio.open('data/agricn2o17.asc')
-
 # wf1 shapefiles
 # nuts
 #base_nuts = gpd.read_file('zip://shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
@@ -96,10 +92,8 @@ admin_zones_name_dict = {
 
 # "gridded" workflow
 def cropRasterDataset(dataset,zone_type,region,plot_title):
-    if dataset == 'nox':
-        active_dataset = nox
-    else:
-        active_dataset = rio.open(dataset)
+
+    active_dataset = rio.open(dataset)
     
     if region == 'aa':
         ltser_site = aa
