@@ -219,7 +219,7 @@ server <- function(input,output){
             label = "This data is grouped by...",
             choices = deims_site_zone_options$input$comparison_site,
             multiple = FALSE
-            ),
+            )
     })
     # reads input file, if it exists, and "returns" tibble
     wf2_user_input <- reactive({
