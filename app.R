@@ -217,7 +217,7 @@ server <- function(input,output){
         selectInput(
             inputId = "data_grouping",
             label = "This data is grouped by...",
-            choices = deims_site_zone_options$input$comparison_site,
+            choices = deims_site_zone_options[[input$comparison_site]],
             multiple = FALSE
             )
     })

@@ -108,9 +108,7 @@ for potential_site in sites_to_try:
             # will be in directories of the same name
             composite_dirs = os.listdir('shapefiles/zones/{}/'.format(metadata['nationalZoneDir']))
             for composite_dir in composite_dirs:
-                testvar = gpd.read_file('shapefiles/deims/{}/composites/{}/boundaries.shp'.format(potential_site,composite_dir))
-                composites[composite_dir] = testvar
-                #composites[validated_zones[composite_dir]] = gpd.read_file('shapefiles/deims/{}/composites/{}/boundaries.shp'.format(potential_site,composite_dir))
+                composites[composite_dir] = gpd.read_file('shapefiles/deims/{}/composites/{}/boundaries.shp'.format(potential_site,composite_dir))
     except:
         print('ERROR: national shapefiles could not be loaded for site {} - not all national zones will be present'.format(potential_site))
         # should be safe to proceed
@@ -123,7 +121,7 @@ for potential_site in sites_to_try:
 
 # construct metadata for interface
 deims_site_name_mappings = {
-        x: validated_deims_sites[x]['metadata']['displayName'] for x in list(validated_deims_sites)
+        validated_deims_sites[x]['metadata']['displayName']: x for x in list(validated_deims_sites)
         }
 deims_site_zone_options = {
         x: {
@@ -185,10 +183,10 @@ def cropRasterDataset(dataset,zone_type,region,plot_data_type):
 
 # "non-gridded" workflow
 # this tabular dataset (1) to this site (2) divided by these boundaries (3) 
-def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
+def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     # select composite deims/zones shapefile data and metadata
-    composite_site = validated_deims_sites[ltser_site]['composites'][admin_zones]
-    site_name = validated_deims_sites[region]['metadata']['displayName']
+    composite_site = validated_deims_sites[deims_site]['composites'][admin_zones]
+    site_name = validated_deims_sites[deims_site]['metadata']['displayName']
     admin_zones_name = validated_zones[admin_zones]['displayName']
 
     # take name of first column of dataset - will pass to merge function assuming it contains IDs
@@ -207,7 +205,7 @@ def aggregateTabularDataset(dataset,ltser_site,admin_zones,plot_key,plot_title):
     cax = divider.append_axes('right', size='5%', pad=0.1)
     # additional formatting
     ax.set_axis_off()
-    ax.set_title('{} data cropped to {} by {}'.format(plot_title,ltser_site_name,admin_zones_name))
+    ax.set_title('{} data cropped to {} by {}'.format(plot_title,site_name,admin_zones_name))
     # plot output, save to temporary image and close plot to save memory
     #
     # The commented statement includes the missing_kwds argument for prettier
