@@ -22,15 +22,6 @@ nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
 nuts_level3_names <- filter(nuts_all_levels, LEVL_CODE == 3)$NICENAME
 level_choices <- c("0","1","2","3")
 
-# DEIMS definitions
-deims_LTSER_choices <- c(
-    "LTSER Zone Atelier Alpes" = "aa",
-    "Braila Islands" = "bi",
-    "Cairngorms National Park" = "cg",
-    "Doñana LTSER" = "dn",
-    "LTSER Platform Eisenwurzen" = "ew",
-    "LTSER platform Lautaret-Oisans" = "lo")
-
 # reticulate
 use_virtualenv("./reticulate-venv")
 source_python("analyse.py")
@@ -120,8 +111,7 @@ ui <- fluidPage(
                     selectInput(
                         inputId = "deims_filter",
                         label = "Deims site",
-                        choices = deims_LTSER_choices,
-                        selected = "cg",
+                        choices = deims_site_name_mappings,
                         multiple = FALSE
                     )
                 )
@@ -138,37 +128,17 @@ ui <- fluidPage(
                                ".xlsx",
                                ".csv")
                 ),
+                # reactive inputs after data uploaded
                 uiOutput("wf2_user_input_sheets"),
                 uiOutput("wf2_columns"),
-                helpText("3: describe data and choose comparison site"),
-                selectInput(
-                    inputId = "data_grouping",
-                    label = "This data is grouped by...",
-                    choices = c(
-                        "NUTS 0 regions" = "n0",
-                        "NUTS 1 regions" = "n1",
-                        "NUTS 2 regions" = "n2",
-                        "NUTS 3 regions" = "n3",
-                        "Data zones (Scotland)" = "dz",
-                        "Intermediate zones (Scotland)" = "iz",
-                        "Health boards (Scotland)" = "hb",
-                        "Health integration authorities (Scotland)" = "ia",
-                        "UK parliamentary constituencies (Scotland)" = "up",
-                        "Scottish parliamentary constituencies (Scotland)" = "sp",
-                        "Councils (Scotland)" = "sc",
-                        "Electoral wards (Scotland)" = "ew",
-                        "Travel-to-work areas (Scotland)" = "tw"
-                        ),
-                    selected = "dz",
-                    multiple = FALSE
-                ),
+                helpText("3: select DEIMS site and data grouping"),
                 selectInput(
                     inputId = "comparison_site",
                     label = "To which site boundaries should the data be trimmed?",
-                    choices = deims_LTSER_choices,
-                    selected = "cg",
+                    choices = deims_site_name_mappings,
                     multiple = FALSE
-                )
+                ),
+                uiOutput("wf2_site_zone_picker")
             )
         ),
         mainPanel(
@@ -242,6 +212,15 @@ server <- function(input,output){
     })
     
     # wf2
+    # populates available zones based on site by reading python metadata
+    output$wf2_site_zone_picker <- renderUI({
+        selectInput(
+            inputId = "data_grouping",
+            label = "This data is grouped by...",
+            choices = deims_site_zone_options$input$comparison_site,
+            multiple = FALSE
+            ),
+    })
     # reads input file, if it exists, and "returns" tibble
     wf2_user_input <- reactive({
         if(is.null(input$tabular_data)){
