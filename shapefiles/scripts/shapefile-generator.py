@@ -162,7 +162,7 @@ def fetchDeimsSiteMetadata(deims_site_id_suffix,debug=False):
     # take only what we need
     compact_metadata = {
             'id': full_metadata['id'],
-            'displayName': full_metadata['siteName'],
+            'displayName': full_metadata['attributes']['general']['siteName'],
             'nationalZonesAvailable': False,
             'nationalZoneDir': None,
             }
