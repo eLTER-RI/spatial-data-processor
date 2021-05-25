@@ -1,3 +1,7 @@
+import os
+import json
+import string
+import urllib.request
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -62,21 +66,161 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
     else:
         return gdf_out
 
-# wrapper which was quick at generating Scottish zone shapefiles
-# (other than data zone) en masse. Requires manual check for the
-# zone name and zone ID parameters for now but still saves time.
-#
-# zone_shapefile - filename of a shapefile describing zones
-# destination - filename to save the output to
-# other kwargs are passed to the decomposeSite function
+# load NUTS zones 0-3, as these are the only mandatory zones
+nuts_zones = {}
+nuts_names = ['nuts0', 'nuts1', 'nuts2', 'nuts3']
 
-def shapefileGen(zone_shapefile,destination,**kwargs):
+# try to load each directory as a NUTS zone
+for nuts_level in nuts_names:
+    # metadata
     try:
-        sf_in = gpd.read_file('zip://'+zone_shapefile)
+        # read the metadata file as JSON
+        with open('shapefiles/zones/nuts2016/{}/metadata.json'.format(nuts_level)) as f:
+            raw_metadata = f.read()
+        metadata = json.loads(raw_metadata)
+        # check for required keys
+        keys = list(metadata)
+        if 'displayName' not in keys or 'IDColumn' not in keys or 'nameColumn' not in keys:
+            raise Exception
     except:
-        sf_in = gpd.read_file(zone_shapefile)
-    sf_out = decomposeSite(admin_zones=sf_in,**kwargs)
-    print(sf_out)
-    sf_out.to_file(destination)
+        print('FATAL: metadata could not be loaded for zone {} - aborting'.format(nuts_level))
+        raise
+    # raw shapefile
+    try:
+        # load shapefile, make no checks
+        zone_boundaries = gpd.read_file('zip://shapefiles/zones/nuts2016/{}/boundaries.shp.zip'.format(nuts_level))
+    except:
+        print('FATAL: zone boundaries could not be loaded for zone {} - skipping'.format(potential_zone))
+        raise
+    # everything succeeded, so add zone to validated dict
+    nuts_zones[nuts_level] = {
+            'metadata': metadata,
+            'zone_boundaries': zone_boundaries,
+            }
+
+# DEIMS interface code
+#
+# returns True if a string is a well formed DEIMS ID suffix
+# no checks are made of whether it is "real"
+def isValidDeimsIDSuffix(deims_site_id_suffix,debug=False):
+    # check type
+    if type(deims_site_id_suffix) != str:
+        if debug:
+            print('Type should be string')
+        return False
+
+    # check length
+    if len(deims_site_id_suffix) != 36:
+        if debug:
+            print('Incorrect length')
+        return False
+
+    # check for expected dashes
+    split_id_suffix = deims_site_id_suffix.split('-')
+    if [len(x) for x in split_id_suffix] != [8, 4, 4, 4, 12]:
+        if debug:
+            print('Incorrect shape')
+        return False
+
+    # check hex characters only - nested "all"s because .split() returns list
+    if not all(
+            all(
+                char in string.hexdigits for char in substring
+                ) for substring in split_id_suffix
+            ):
+        if debug:
+            print('Hex characters only')
+        return False
+
+    # everything's ok
+    return True
+
+# makes no checks, blindly creates the relevant directories needed
+# for a new DEIMS site
+def bootstrapDeimsDirectory(deims_site_id_suffix):
+    # make minimal directories, to be populated with shapefiles and metadata elsewhere
+    os.makedirs('shapefiles/deims/{}/raw/'.format(deims_site_id_suffix),exist_ok=True)
+    # makedirs creates intermediate directories, so we set up the minimal
+    # guaranateed composite directories directly
+    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts0'.format(deims_site_id_suffix),exist_ok=True)
+    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts1'.format(deims_site_id_suffix),exist_ok=True)
+    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts2'.format(deims_site_id_suffix),exist_ok=True)
+    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts3'.format(deims_site_id_suffix),exist_ok=True)
 
     return 0
+
+def fetchDeimsSiteMetadata(deims_site_id_suffix,debug=False):
+    base_url = 'https://deims.org/api/sites/{}'
+
+    # fetch and parse metadata
+    with urllib.request.urlopen(base_url.format(deims_site_id_suffix)) as f:
+        full_metadata = json.loads(f.read().decode('utf-8'))
+
+    if debug:
+        print(full_metadata)
+
+    # take only what we need
+    compact_metadata = {
+            'id': full_metadata['id'],
+            'displayName': full_metadata['siteName'],
+            'nationalZonesAvailable': False,
+            'nationalZoneDir': None,
+            }
+
+    return compact_metadata
+
+def fetchDeimsSiteBoundaries(deims_site_id_suffix):
+    # even though IDs are given with a prefix it seems unlikely
+    # this prefix will change
+    deims_site_id_string = 'https://deims.org/'+ deims_site_id_suffix
+    base_url = 'https://deims.org/geoserver/deims/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=deims:deims_sites_boundaries&srsName=EPSG:4326&CQL_FILTER=deimsid=%27{}%27&outputFormat=SHAPE-ZIP'
+    zip_destination = 'shapefiles/deims/{}/raw/boundaries.shp.zip'.format(deims_site_id_suffix)
+
+    # fetch shapefile as zip
+    urllib.request.urlretrieve(
+            base_url.format(deims_site_id_string),
+            zip_destination
+            )
+
+    return zip_destination
+
+
+# putting the above together
+# test case: trnava - https://deims.org/fabf28c6-8fa1-4a81-aaed-ab985cbc4906
+def addDeimsSite(deims_site_id_suffix,debug=False):
+    # check input is valid, trimming full IDs
+    #
+    # this architecture should probably be integrated
+    # with the ID validation checks though, perhaps
+    # a unified isDeimsID which returns a normalised
+    # form, either full or suffix-only
+    if deims_site_id_suffix.startswith('https://deims.org/'):
+        deims_site_id_suffix = deims_site_id_suffix[18:]
+        if debug:
+            print('Possible full DEIMS ID detected - trimmed input to {}'.format(deims_site_id_suffix))
+    if not isValidDeimsIDSuffix(deims_site_id_suffix,debug=debug):
+        print('Invalid ID')
+        return 1
+
+    base_dir = 'shapefiles/deims/{}'.format(deims_site_id_suffix)
+    metadata_destination = '{}/{}'.format(base_dir,'metadata.json')
+
+    bootstrapDeimsDirectory(deims_site_id_suffix)
+    # fetch and save metadata
+    metadata = fetchDeimsSiteMetadata(deims_site_id_suffix,debug=debug)
+    with open(metadata_destination,'w') as f:
+        f.write(json.dumps(metadata,indent=4))
+
+    # fetch and save raw boundaries, saving the returned path to be read next
+    boundaryPath = fetchDeimsSiteBoundaries(deims_site_id_suffix)
+    # read boundaries then aggregate with NUTS and save
+    deims_site_boundaries = gpd.read_file(boundaryPath)
+    for x in list(nuts_zones):
+        composite = decomposeSite(
+                deims_site_boundaries,
+                nuts_zones[x]['zone_boundaries'],
+                nuts_zones[x]['metadata']['IDColumn'],
+                nuts_zones[x]['metadata']['nameColumn'],
+                debug=False
+                )
+        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp'.format(base_dir,x))
