@@ -223,4 +223,4 @@ def addDeimsSite(deims_site_id_suffix,debug=False):
                 nuts_zones[x]['metadata']['nameColumn'],
                 debug=False
                 )
-        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp'.format(base_dir,x))
+        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp.zip'.format(base_dir,x))

@@ -1,9 +1,9 @@
 {
     "id": {
-        "suffix": "d0a8da18-0881-4ebe-bccf-bc4cb4e25701",
-        "prefix": "https://deims.org/"
+        "prefix": "https://deims.org/",
+        "suffix": "d0a8da18-0881-4ebe-bccf-bc4cb4e25701"
     },
-	"displayName": "LTSER Platform Eisenwurzen",
+    "displayName": "LTSER Platform Eisenwurzen (EW)",
     "nationalZonesAvailable": false,
-	"nationalZonesInfo": null
+    "nationalZoneDir": null
 }

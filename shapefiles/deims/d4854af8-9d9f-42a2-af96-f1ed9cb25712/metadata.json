@@ -1,9 +1,9 @@
 {
     "id": {
-        "suffix": "d4854af8-9d9f-42a2-af96-f1ed9cb25712",
-        "prefix": "https://deims.org/"
+        "prefix": "https://deims.org/",
+        "suffix": "d4854af8-9d9f-42a2-af96-f1ed9cb25712"
     },
-	"displayName": "Braila Islands",
+    "displayName": "Braila Islands",
     "nationalZonesAvailable": false,
-	"nationalZonesInfo": null
+    "nationalZoneDir": null
 }
