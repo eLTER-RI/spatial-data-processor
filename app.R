@@ -25,6 +25,7 @@ level_choices <- c("0","1","2","3")
 # reticulate
 use_virtualenv("./reticulate-venv")
 source_python("analyse.py")
+source_python("shapefiles/scripts/shapefile-generator.py")
 
 ### shiny code
 ui <- fluidPage(
@@ -132,12 +133,9 @@ ui <- fluidPage(
                 uiOutput("wf2_user_input_sheets"),
                 uiOutput("wf2_columns"),
                 helpText("3: select DEIMS site and data grouping"),
-                selectInput(
-                    inputId = "comparison_site",
-                    label = "To which site boundaries should the data be trimmed?",
-                    choices = deims_site_name_mappings,
-                    multiple = FALSE
-                ),
+                uiOutput("wf2_deims_site_picker"),
+                textInput("new_deims_ID","Paste a DEIMS site ID suffix and hit add"),
+                actionButton("new_site", "Add"),
                 uiOutput("wf2_site_zone_picker")
             )
         ),
@@ -212,12 +210,27 @@ server <- function(input,output){
     })
     
     # wf2
+    deims_site_options <- reactiveValues(sites = deims_site_name_mappings)
     # populates available zones based on site by reading python metadata
     output$wf2_site_zone_picker <- renderUI({
         selectInput(
             inputId = "data_grouping",
             label = "This data is grouped by...",
             choices = deims_site_zone_options[[input$comparison_site]],
+            multiple = FALSE
+            )
+    })
+    # add new DEIMS sites on user input
+    observeEvent(input$new_site, {
+        addDeimsSite(input$new_deims_ID,TRUE,FALSE)
+        deims_site_options$sites <- py$deims_site_name_mappings
+    })
+    # render DEIMS site picker - reactive in case user adds site
+    output$wf2_deims_site_picker <- renderUI({
+        selectInput(
+            inputId = "comparison_site",
+            label = "To which site boundaries should the data be trimmed?",
+            choices = deims_site_options$sites,
             multiple = FALSE
             )
     })
