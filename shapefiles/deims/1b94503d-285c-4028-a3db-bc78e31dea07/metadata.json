@@ -1,9 +1,9 @@
 {
     "id": {
-        "suffix": "1b94503d-285c-4028-a3db-bc78e31dea07",
-        "prefix": "https://deims.org/"
+        "prefix": "https://deims.org/",
+        "suffix": "1b94503d-285c-4028-a3db-bc78e31dea07"
     },
-	"displayName": "Cairngorms National Park",
+    "displayName": "Cairngorms National Park LTSER",
     "nationalZonesAvailable": true,
-	"nationalZoneDir": "scotland"
+    "nationalZoneDir": "scotland"
 }

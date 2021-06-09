@@ -187,7 +187,7 @@ def fetchDeimsSiteBoundaries(deims_site_id_suffix):
 
 # putting the above together
 # test case: trnava - https://deims.org/fabf28c6-8fa1-4a81-aaed-ab985cbc4906
-def addDeimsSite(deims_site_id_suffix,debug=False):
+def addDeimsSite(deims_site_id_suffix,interactive=False,debug=False):
     # check input is valid, trimming full IDs
     #
     # this architecture should probably be integrated
@@ -215,12 +215,37 @@ def addDeimsSite(deims_site_id_suffix,debug=False):
     boundaryPath = fetchDeimsSiteBoundaries(deims_site_id_suffix)
     # read boundaries then aggregate with NUTS and save
     deims_site_boundaries = gpd.read_file(boundaryPath)
-    for x in list(nuts_zones):
+    if interactive:
+        # save composites dict to update interface
+        composites = {}
+    for nuts_level in list(nuts_zones):
         composite = decomposeSite(
                 deims_site_boundaries,
-                nuts_zones[x]['zone_boundaries'],
-                nuts_zones[x]['metadata']['IDColumn'],
-                nuts_zones[x]['metadata']['nameColumn'],
+                nuts_zones[nuts_level]['zone_boundaries'],
+                nuts_zones[nuts_level]['metadata']['IDColumn'],
+                nuts_zones[nuts_level]['metadata']['nameColumn'],
                 debug=False
                 )
-        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp'.format(base_dir,x))
+        if interactive:
+            # add to composites dictionary
+            composites[nuts_level] = composite
+
+        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp.zip'.format(base_dir,nuts_level))
+
+    if interactive:
+        global validated_deims_sites
+        global deims_site_name_mappings
+        global deims_site_zone_options
+
+        # add meta
+        validated_deims_sites[metadata['id']['suffix']] = {
+                'metadata': metadata,
+                'site_boundaries': deims_site_boundaries,
+                'composites': composites,
+                }
+
+        deims_site_name_mappings[metadata['displayName']] = metadata['id']['suffix']
+        # add sites
+        deims_site_zone_options[metadata['id']['suffix']] = {
+                validated_zones[nuts_level]['displayName']: nuts_level for nuts_level in list(nuts_zones)
+                }
