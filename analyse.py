@@ -210,18 +210,7 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     ax.set_axis_off()
     ax.set_title('{} data cropped to {} by {}'.format(plot_title,site_name,admin_zones_name))
     # plot output, save to temporary image and close plot to save memory
-    #
-    # The commented statement includes the missing_kwds argument for prettier
-    # plot output when there's missing data. At some stage this seems to
-    # have fallen foul of a bug in geopandas where supplying "missing_kwds"
-    # when there's no missing data causes an error.
-    #
-    # Instead of checking for missing values, it will be easier to just 
-    # remove the missing_kwds argument until the bug is fixed, as there is
-    # already a PR raised on GitHub for geopandas which fixes the issue.
-    #
-    #merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
-    merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax)
+    merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
     fig.savefig('/tmp/plot.png')
     plt.close(fig)
 
