@@ -43,9 +43,10 @@ ui <- fluidPage(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
                 helpText("2: select data"),
+                uiOutput("wf1_files"),
                 fileInput(
-                    inputId = "raster_data",
-                    label = "Upload your data here",
+                    inputId = "raster_upload",
+                    label = "Or, upload new data here",
                     multiple = FALSE,
                     accept = c("image/tiff")
                 ),
@@ -171,14 +172,26 @@ ui <- fluidPage(
 server <- function(input,output){
     # reactive intermediates
     # wf1
+    #
     # called after user has uploaded data
-    raster_output <- reactive({
+    handle_raster_upload <- reactive({
         # process user upload, taking its validity for granted
-        dataset <- input$raster_data$datapath
+        dataset_path <- paste0("input/wf1/",input$raster_upload$name)
+        file.copy(input$raster_upload$datapath,dataset_path)
+        all_reactive_values$wf1_inputs <- list.files("input/wf1")
+        updateSelectInput(
+            inputId = "wf1_selected_file",
+            selected = input$raster_upload$name
+        )
+    })
+
+    # generate raster output
+    raster_output <- reactive({
         plot_title <- input$raster_data_name
+        path_to_dataset <- paste0("input/wf1/",input$wf1_selected_file)
         
         if(input$region_toggle == "DEIMS"){
-            cropRasterDataset(dataset,"deims",input$deims_filter,plot_title)
+            cropRasterDataset(path_to_dataset,"deims",input$deims_filter,plot_title)
         }
         else{
             if(input$nutslevel_filter == "0"){
@@ -193,11 +206,13 @@ server <- function(input,output){
             if(input$nutslevel_filter == "3"){
                 crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
             }
-            cropRasterDataset(dataset,"nuts",crop_id,plot_title)
+            cropRasterDataset(path_to_dataset,"nuts",crop_id,plot_title)
         }
     })
+    
+    # if raster data is chosen, prompt user for title to use in plot
     output$wf1_title <- renderUI({
-        if(is.null(input$raster_data)){
+        if(input$wf1_selected_file == ""){
             # pass
         }
         else{
@@ -209,8 +224,26 @@ server <- function(input,output){
         }
     })
     
+    # if there are raster files available, let user choose via dropdown
+    output$wf1_files <- renderUI({
+        selectInput(
+            inputId = "wf1_selected_file",
+            label = "Select data to crop",
+            # any way to force this to be empty on start, even if there are options ready?
+            #selected = "",
+            choices = all_reactive_values$wf1_inputs,
+            multiple = FALSE
+        )
+    })
+    
     # wf2
-    deims_site_options <- reactiveValues(sites = deims_site_name_mappings)
+    wf1_initial_input_files <- list.files("input/wf1")
+    wf2_initial_input_files <- list.files("input/wf2")
+    all_reactive_values <- reactiveValues(
+        sites = deims_site_name_mappings,
+        wf1_inputs = wf1_initial_input_files,
+        wf2_inputs = wf2_initial_input_files
+        )
     # populates available zones based on site by reading python metadata
     output$wf2_site_zone_picker <- renderUI({
         selectInput(
@@ -223,14 +256,14 @@ server <- function(input,output){
     # add new DEIMS sites on user input
     observeEvent(input$new_site, {
         addDeimsSite(input$new_deims_ID,TRUE,FALSE)
-        deims_site_options$sites <- py$deims_site_name_mappings
+        all_reactive_values$sites <- py$deims_site_name_mappings
     })
     # render DEIMS site picker - reactive in case user adds site
     output$wf2_deims_site_picker <- renderUI({
         selectInput(
             inputId = "comparison_site",
             label = "To which site boundaries should the data be trimmed?",
-            choices = deims_site_options$sites,
+            choices = all_reactive_values$sites,
             multiple = FALSE
             )
     })
@@ -306,14 +339,26 @@ server <- function(input,output){
         })
     
     output$raster_plot <- renderImage({
-        if(is.null(input$raster_data)){
+        if(length(all_reactive_values$wf1_inputs)==0){
             list(src="eLTER-logo.png",alt="eLTER logo",width=645,height=233)
         }
         else{
-            replot <- raster_output()
+            raster_output()
             list(src="/tmp/crop.png",alt="Plot of cropped data")
         }
     }, deleteFile = FALSE)
+    
+    # reactive observer to check for uploads. Required to call handle_raster_upload,
+    # although handle_raster_upload can perhaps just be merged here.
+    raster_upload_watcher <- observe({
+        uploaded_file <- input$raster_upload
+        if(is.null(uploaded_file)){
+            # pass
+        }
+        else{
+            handle_raster_upload()
+        }
+    })
     
     output$raster_plot_download <- downloadHandler(
         filename = "plot.png",
