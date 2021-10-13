@@ -12,6 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # ensure input and output folders exist in working directory - no checks to where working directory is
 os.makedirs('input/wf1',exist_ok=True)
+os.makedirs('output/wf1',exist_ok=True)
 
 # load nuts shapefile for wf1
 all_nuts = gpd.read_file('shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')

@@ -7,3 +7,4 @@ packrat/init.R
 .Rprofile
 reticulate-venv/
 input/
+output/

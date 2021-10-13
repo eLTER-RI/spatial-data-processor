@@ -144,14 +144,8 @@ ui <- fluidPage(
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
                 imageOutput(outputId = "raster_plot"),
-                downloadButton(
-                    outputId = "raster_download",
-                    label = "Download data"
-                ),
-                downloadButton(
-                    outputId = "raster_plot_download",
-                    label = "Download plot"
-                )
+                uiOutput("raster_output_options"),
+                uiOutput("raster_download_options")
             ),
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
@@ -236,12 +230,52 @@ server <- function(input,output){
         )
     })
     
+    # render options when there is input data being processed
+    output$raster_output_options <- renderUI({
+        if(length(all_reactive_values$wf1_inputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                actionButton("save_raster_output", "Save data"),
+                downloadButton(
+                    outputId = "raster_plot_download",
+                    label = "Download plot"
+                )
+            )
+        }
+    })
+    
+    # render options for when output is available to download
+    output$raster_download_options <- renderUI({
+        if(length(all_reactive_values$wf1_outputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                # selectinput for choosing download file, updated on save button click
+                selectInput(
+                    inputId = "raster_download_choice",
+                    label = "Select data to download",
+                    choices = all_reactive_values$wf1_outputs,
+                    multiple = FALSE
+                ),
+                downloadButton(
+                    outputId = "raster_download",
+                    label = "Download data"
+                )                
+            )
+        }
+    })
+    
     # wf2
     wf1_initial_input_files <- list.files("input/wf1")
+    wf1_initial_output_files <- list.files("output/wf1")
     wf2_initial_input_files <- list.files("input/wf2")
     all_reactive_values <- reactiveValues(
         sites = deims_site_name_mappings,
         wf1_inputs = wf1_initial_input_files,
+        wf1_outputs = wf1_initial_output_files,
         wf2_inputs = wf2_initial_input_files
         )
     # populates available zones based on site by reading python metadata
@@ -257,6 +291,19 @@ server <- function(input,output){
     observeEvent(input$new_site, {
         addDeimsSite(input$new_deims_ID,TRUE,FALSE)
         all_reactive_values$sites <- py$deims_site_name_mappings
+    })
+    # save raster output on user input
+    observeEvent(input$save_raster_output, {
+        # take everything off input filename after first dot - foo.x.y.z becomes foo
+        original_filename_without_extension <- strsplit(input$wf1_selected_file,".",TRUE)[[1]][1]
+        unqualified_filename <- paste0(original_filename_without_extension,"-",input$deims_filter,".tif")
+        qualified_filename <- paste0("output/wf1/",unqualified_filename)
+        file.copy("/tmp/masked.tif",qualified_filename)
+        all_reactive_values$wf1_outputs <- list.files("output/wf1")
+        updateSelectInput(
+            inputId = "raster_download_choice",
+            selected = unqualified_filename
+        )
     })
     # render DEIMS site picker - reactive in case user adds site
     output$wf2_deims_site_picker <- renderUI({
@@ -333,9 +380,12 @@ server <- function(input,output){
     
     # outputs
     output$raster_download <- downloadHandler(
-        filename = "cropped-data.tif",
+        filename = function(){
+            input$raster_download_choice
+        },
         content = function(file){
-            file.copy("/tmp/masked.tif",file)
+            qualified_filename <- paste0("output/wf1/",input$raster_download_choice)
+            file.copy(qualified_filename,file)
         })
     
     output$raster_plot <- renderImage({
