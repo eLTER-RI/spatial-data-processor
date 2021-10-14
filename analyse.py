@@ -220,5 +220,8 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
     fig.savefig('/tmp/plot.png')
     plt.close(fig)
-
-    return merged_dataset.drop(columns=[right_on_key,'geometry'])
+    
+    if right_on_key != 'zone_id':
+        return merged_dataset.drop(columns=[right_on_key,'geometry'])
+    else:
+        return merged_dataset.drop(columns='geometry')
