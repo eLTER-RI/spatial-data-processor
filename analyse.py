@@ -16,9 +16,6 @@ os.makedirs('input/wf2',exist_ok=True)
 os.makedirs('output/wf1',exist_ok=True)
 os.makedirs('output/wf2',exist_ok=True)
 
-# load nuts shapefile for wf1
-all_nuts = gpd.read_file('shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
-
 # initialise validated zones and directories to attempt to load metadata from
 validated_zones = {}
 nuts_zones_to_try = ['nuts0','nuts1','nuts2','nuts3']
@@ -144,18 +141,15 @@ deims_site_zone_options = {
 # WORKFLOW DEFINITIONS
 # "gridded" workflow
 # this raster dataset (1) to this shapefile boundary (2)
-def cropRasterDataset(dataset,zone_type,region,plot_data_type):
+def cropRasterDataset(dataset,region,plot_data_type):
 
     # setup
     # load user data
     active_dataset = rio.open(dataset)
+    
     # get site boundary and name from user input
-    if zone_type == 'deims':
-        site_boundary = validated_deims_sites[region]['site_boundaries']
-        site_name = validated_deims_sites[region]['metadata']['displayName']
-    elif zone_type == 'nuts':
-        site_boundary = all_nuts[all_nuts['NUTS_ID']==region]
-        site_name = region
+    site_boundary = validated_deims_sites[region]['site_boundaries']
+    site_name = validated_deims_sites[region]['metadata']['displayName']
 
     # coerce site to dataset CRS
     if site_boundary.crs != active_dataset.crs:

@@ -3,24 +3,12 @@ packrat::on()
 
 library(shiny)
 library(reticulate)
-library(dplyr)
 library(readr)
 library(readxl)
 
 # set global shiny options
 # use powers of 1024 for kilo/Mega/...bytes
 options(shiny.maxRequestSize=2*1024^3)
-
-### preamble
-
-# NUTS 2016 definitions
-# read static metadata on NUTS regions generated in Python
-nuts_all_levels <- read_csv("shapefiles/zones/nuts2016/cached-nuts-all.csv")
-nuts_level0_names <- filter(nuts_all_levels, LEVL_CODE == 0)$NICENAME
-nuts_level1_names <- filter(nuts_all_levels, LEVL_CODE == 1)$NICENAME
-nuts_level2_names <- filter(nuts_all_levels, LEVL_CODE == 2)$NICENAME
-nuts_level3_names <- filter(nuts_all_levels, LEVL_CODE == 3)$NICENAME
-level_choices <- c("0","1","2","3")
 
 # reticulate
 use_virtualenv("./reticulate-venv")
@@ -51,71 +39,12 @@ ui <- fluidPage(
                     accept = c("image/tiff")
                 ),
                 uiOutput("wf1_title"),
-                helpText("3: filter by either DEIMS site boundaries or EU NUTS levels 0-3"),
-                # toggle NUTS or DEIMS
-                radioButtons(
-                    inputId = "region_toggle",
-                    label = "Choose filter type",
-                    choices = c("DEIMS","NUTS")
-                ),
-                # NUTS
-                conditionalPanel(
-                    condition = "input.region_toggle === 'NUTS'",
-                    selectInput(
-                        inputId = "nutslevel_filter",
-                        label = "NUTS level",
-                        choices = level_choices
-                    ),
-                    conditionalPanel(
-                        condition = "input.nutslevel_filter === '0'",
-                        selectInput(
-                            inputId = "nuts_region_0_filter",
-                            label = "NUTS region",
-                            choices = nuts_level0_names,
-                            multiple = FALSE,
-                            selected = "UK - UNITED KINGDOM"
-                        )
-                    ),
-                    conditionalPanel(
-                        condition = "input.nutslevel_filter === '1'",
-                        selectInput(
-                            inputId = "nuts_region_1_filter",
-                            label = "NUTS region",
-                            choices = nuts_level1_names,
-                            multiple = FALSE,
-                            selected = "UKD - NORTH WEST (ENGLAND)"
-                        )
-                    ),
-                    conditionalPanel(
-                        condition = "input.nutslevel_filter === '2'",
-                        selectInput(
-                            inputId = "nuts_region_2_filter",
-                            label = "NUTS region",
-                            choices = nuts_level2_names,
-                            multiple = FALSE,
-                            selected = "UKD4 - Lancashire"
-                        )
-                    ),
-                    conditionalPanel(
-                        condition = "input.nutslevel_filter === '3'",
-                        selectInput(
-                            inputId = "nuts_region_3_filter",
-                            label = "NUTS region",
-                            choices = nuts_level3_names,
-                            multiple = FALSE,
-                            selected = "UKD44 - Lancaster and Wyre"
-                        )
-                    )
-                ),
-                # DEIMS
-                conditionalPanel(
-                    condition = "input.region_toggle === 'DEIMS'",
-                    selectInput(
-                        inputId = "deims_filter",
-                        label = "Deims site",
-                        choices = deims_site_name_mappings,
-                        multiple = FALSE
-                    )
+                helpText("3: choose DEIMS site to filter to"),
+                selectInput(
+                    inputId = "deims_filter",
+                    label = "Deims site",
+                    choices = deims_site_name_mappings,
+                    multiple = FALSE
                 )
             ),
             # second workflow
@@ -179,24 +108,7 @@ server <- function(input,output){
         plot_title <- input$raster_data_name
         path_to_dataset <- paste0("input/wf1/",input$wf1_selected_file)
         
-        if(input$region_toggle == "DEIMS"){
-            cropRasterDataset(path_to_dataset,"deims",input$deims_filter,plot_title)
-        }
-        else{
-            if(input$nutslevel_filter == "0"){
-                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_0_filter)$NUTS_ID
-            }
-            if(input$nutslevel_filter == "1"){
-                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_1_filter)$NUTS_ID
-            }
-            if(input$nutslevel_filter == "2"){
-                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_2_filter)$NUTS_ID
-            }
-            if(input$nutslevel_filter == "3"){
-                crop_id <- filter(nuts_all_levels, NICENAME == input$nuts_region_3_filter)$NUTS_ID
-            }
-            cropRasterDataset(path_to_dataset,"nuts",crop_id,plot_title)
-        }
+        cropRasterDataset(path_to_dataset,input$deims_filter,plot_title)
     })
     
     # if raster data is chosen, prompt user for title to use in plot

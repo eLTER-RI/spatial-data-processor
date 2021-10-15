@@ -73,13 +73,6 @@ Source: RSPM
 Version: 0.6.27
 Hash: 8ba156629c1537635b39332c93d8ed33
 
-Package: dplyr
-Source: RSPM
-Version: 1.0.6
-Hash: da3b72d851a648c4994f40459d06ef23
-Requires: R6, ellipsis, generics, glue, lifecycle, magrittr, pillar,
-    rlang, tibble, tidyselect, vctrs
-
 Package: ellipsis
 Source: RSPM
 Version: 0.3.2
@@ -101,11 +94,6 @@ Source: RSPM
 Version: 1.5.0
 Hash: 918ea5c88cad73d5d5b529ca98f8ad11
 
-Package: generics
-Source: RSPM
-Version: 0.1.0
-Hash: c265031f21f6435ffaa9633eb64c3095
-
 Package: glue
 Source: RSPM
 Version: 1.4.2
@@ -126,7 +114,7 @@ Requires: base64enc, digest, rlang
 Package: httpuv
 Source: RSPM
 Version: 1.6.1
-Hash: 12aef65c579f4a2bec728c6518fbd4f1
+Hash: f6544986815865f945ef7308aecdebe3
 Requires: R6, Rcpp, later, promises
 
 Package: jquerylib
@@ -197,14 +185,8 @@ Requires: R6, crayon, hms, prettyunits
 Package: promises
 Source: RSPM
 Version: 1.2.0.1
-Hash: e1b84208834fc1e2e75099ec002b7904
+Hash: b999731b91ddfd9b4f8fef55460f3c73
 Requires: R6, Rcpp, later, magrittr, rlang
-
-Package: purrr
-Source: RSPM
-Version: 0.3.4
-Hash: fb4c0edca61826ca0b5b33c828a7b276
-Requires: magrittr, rlang
 
 Package: rappdirs
 Source: RSPM
@@ -214,14 +196,14 @@ Hash: fd602edfd7dbf365642e35dd9cc97958
 Package: readr
 Source: RSPM
 Version: 1.4.0
-Hash: d08598cdbd71823accdbd570383c6338
+Hash: caf2f562ac337a43fa6af046d1f8d69c
 Requires: BH, R6, cli, clipr, cpp11, crayon, hms, lifecycle, rlang,
     tibble
 
 Package: readxl
 Source: RSPM
 Version: 1.3.1
-Hash: ce1e2774d5e9f7694a85bf824bfbcca4
+Hash: e34982e51b2fb433409a36da8111439f
 Requires: Rcpp, cellranger, progress, tibble
 
 Package: rematch
@@ -265,12 +247,6 @@ Version: 3.1.2
 Hash: 83c55123413a6b6d3e777fba5ae667a3
 Requires: ellipsis, fansi, lifecycle, magrittr, pillar, pkgconfig,
     rlang, vctrs
-
-Package: tidyselect
-Source: RSPM
-Version: 1.1.1
-Hash: 6415fa4c6b3b5417aa4d3381845d654c
-Requires: ellipsis, glue, purrr, rlang, vctrs
 
 Package: utf8
 Source: RSPM
