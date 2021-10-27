@@ -101,26 +101,36 @@ server <- function(input,output){
     # "input" UI rendering
     # if there are raster files available, let user choose via dropdown
     output$wf1_files <- renderUI({
-        selectInput(
-            inputId = "wf1_selected_file",
-            label = "Data to crop",
-            # any way to force this to be empty on start, even if there are options ready?
-            #selected = "",
-            choices = all_reactive_values$wf1_inputs,
-            multiple = FALSE
-        )
+        if(length(all_reactive_values$wf1_inputs)==0){
+            # pass
+        }
+        else{
+            selectInput(
+                inputId = "wf1_selected_file",
+                label = "Data to crop",
+                # any way to force this to be empty on start, even if there are options ready?
+                #selected = "",
+                choices = all_reactive_values$wf1_inputs,
+                multiple = FALSE
+            )   
+        }
     })
 
     # if there are tabular files available, let user choose via dropdown
     output$wf2_files <- renderUI({
-        selectInput(
-            inputId = "wf2_selected_file",
-            label = "Data to crop",
-            # any way to force this to be empty on start, even if there are options ready?
-            #selected = "",
-            choices = all_reactive_values$wf2_inputs,
-            multiple = FALSE
-        )
+        if(length(all_reactive_values$wf2_inputs)==0){
+            # pass
+        }
+        else{
+            selectInput(
+                inputId = "wf2_selected_file",
+                label = "Data to crop",
+                # any way to force this to be empty on start, even if there are options ready?
+                #selected = "",
+                choices = all_reactive_values$wf2_inputs,
+                multiple = FALSE
+            )
+        }
     })
 
     # if raster data is chosen, prompt user for title to use in plot
