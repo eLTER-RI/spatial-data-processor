@@ -1,4 +1,4 @@
-### environment + package management
+# environment + package management
 packrat::on()
 
 library(shiny)
@@ -15,277 +15,198 @@ use_virtualenv("./reticulate-venv")
 source_python("analyse.py")
 source_python("shapefiles/scripts/shapefile-generator.py")
 
-### shiny code
+# shiny
 ui <- fluidPage(
-    titlePanel("Data cookie-cutting"),
+    titlePanel("Data cookie-cutter"),
     sidebarLayout(
         sidebarPanel(
+            # common to both workflows
             helpText("1: select workflow"),
             selectInput(
                 inputId = "active_workflow",
-                label = "Select a workflow",
+                label = "Workflow",
                 choices = c("Mask gridded dataset","Aggregate non-gridded dataset"),
                 multiple = FALSE
             ),
             # first workflow
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
-                helpText("2: select data"),
+                helpText("2: select and describe data"),
                 uiOutput("wf1_files"),
                 fileInput(
-                    inputId = "raster_upload",
-                    label = "Or, upload new data here",
+                    inputId = "wf1_upload",
+                    label = "Upload new data",
                     multiple = FALSE,
                     accept = c("image/tiff")
                 ),
-                uiOutput("wf1_title"),
-                helpText("3: choose DEIMS site to filter to"),
-                selectInput(
-                    inputId = "deims_filter",
-                    label = "Deims site",
-                    choices = deims_site_name_mappings,
-                    multiple = FALSE
-                )
+                uiOutput("wf1_title")
             ),
             # second workflow
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
-                helpText("2: select data and active column"),
+                helpText("2: select and describe data"),
                 uiOutput("wf2_files"),
                 fileInput(
-                    inputId = "tabular_upload",
-                    label = "Or, upload new data here",
+                    inputId = "wf2_upload",
+                    label = "Upload new data",
                     multiple = FALSE,
                     accept = c(".xls",
                                ".xlsx",
                                ".csv")
                 ),
-                # reactive inputs after data uploaded
                 uiOutput("wf2_user_input_sheets"),
                 uiOutput("wf2_columns"),
-                helpText("3: select DEIMS site and data grouping"),
-                uiOutput("wf2_deims_site_picker"),
-                textInput("new_deims_ID","Paste a DEIMS site ID suffix and hit add"),
-                actionButton("new_site", "Add"),
                 uiOutput("wf2_site_zone_picker")
-            )
+            ),
+            # common to both workflows
+            helpText("3: select DEIMS site to cookie-cut"),
+            uiOutput("deims_site_picker"),
+            textInput("new_deims_ID","Add a new site by its DEIMS ID"),
+            actionButton("new_site", "Add")
         ),
         mainPanel(
+            # first workflow
             conditionalPanel(
                 condition = "input.active_workflow === 'Mask gridded dataset'",
-                imageOutput(outputId = "raster_plot"),
-                uiOutput("raster_output_options"),
-                uiOutput("raster_download_options")
+                imageOutput(outputId = "wf1_plot"),
+                uiOutput("wf1_output_options"),
+                uiOutput("wf1_download_options")
             ),
+            # second workflow
             conditionalPanel(
                 condition = "input.active_workflow === 'Aggregate non-gridded dataset'",
-                imageOutput(outputId = "tabular_plot"),
-                uiOutput("tabular_output_options"),
-                uiOutput("tabular_download_options")
+                imageOutput(outputId = "wf2_plot"),
+                uiOutput("wf2_output_options"),
+                uiOutput("wf2_download_options")
             )
         )
     )
 )
 
 server <- function(input,output){
-    # reactive intermediates
-    # wf1
-    #
-    # called after user has uploaded data
-    handle_raster_upload <- reactive({
-        # process user upload, taking its validity for granted
-        dataset_path <- paste0("input/wf1/",input$raster_upload$name)
-        file.copy(input$raster_upload$datapath,dataset_path)
-        all_reactive_values$wf1_inputs <- list.files("input/wf1")
-        updateSelectInput(
-            inputId = "wf1_selected_file",
-            selected = input$raster_upload$name
-        )
-    })
-    
-    # generate raster output
-    raster_output <- reactive({
-        plot_title <- input$raster_data_name
-        path_to_dataset <- paste0("input/wf1/",input$wf1_selected_file)
-        
-        cropRasterDataset(path_to_dataset,input$deims_filter,plot_title)
-    })
-    
-    # if raster data is chosen, prompt user for title to use in plot
-    output$wf1_title <- renderUI({
-        if(input$wf1_selected_file == ""){
-            # pass
-        }
-        else{
-            textInput(
-                inputId = "raster_data_name",
-                label = "What is this dataset called?",
-                value = "Custom"
-            )
-        }
-    })
-    
-    # if there are raster files available, let user choose via dropdown
-    output$wf1_files <- renderUI({
-        selectInput(
-            inputId = "wf1_selected_file",
-            label = "Select data to crop",
-            # any way to force this to be empty on start, even if there are options ready?
-            #selected = "",
-            choices = all_reactive_values$wf1_inputs,
-            multiple = FALSE
-        )
-    })
-    
-    # if there are tabular files available, let user choose via dropdown
-    output$wf2_files <- renderUI({
-        selectInput(
-            inputId = "wf2_selected_file",
-            label = "Select data to crop",
-            # any way to force this to be empty on start, even if there are options ready?
-            #selected = "",
-            choices = all_reactive_values$wf2_inputs,
-            multiple = FALSE
-        )
-    })
-    
-    # render options when there is input data being processed
-    output$raster_output_options <- renderUI({
-        if(length(all_reactive_values$wf1_inputs)==0){
-            # pass
-        }
-        else{
-            tagList(
-                actionButton("save_raster_output", "Save data"),
-                downloadButton(
-                    outputId = "raster_plot_download",
-                    label = "Download plot"
-                )
-            )
-        }
-    })
-    
-    # render options for when output is available to download
-    output$raster_download_options <- renderUI({
-        if(length(all_reactive_values$wf1_outputs)==0){
-            # pass
-        }
-        else{
-            tagList(
-                # selectinput for choosing download file, updated on save button click
-                selectInput(
-                    inputId = "raster_download_choice",
-                    label = "Select data to download",
-                    choices = all_reactive_values$wf1_outputs,
-                    multiple = FALSE
-                ),
-                downloadButton(
-                    outputId = "raster_download",
-                    label = "Download data"
-                )                
-            )
-        }
-    })
-    
-    # render options when there is input data being processed
-    output$tabular_output_options <- renderUI({
-        if(length(all_reactive_values$wf2_inputs)==0){
-            # pass
-        }
-        else{
-            tagList(
-                actionButton("save_tabular_output", "Save data"),
-                downloadButton(
-                    outputId = "tabular_plot_download",
-                    label = "Download plot"
-                )
-            )
-        }
-    })
-    
-    # render options for when output is available to download
-    output$tabular_download_options <- renderUI({
-        if(length(all_reactive_values$wf2_outputs)==0){
-            # pass
-        }
-        else{
-            tagList(
-                # selectinput for choosing download file, updated on save button click
-                selectInput(
-                    inputId = "tabular_download_choice",
-                    label = "Select data to download",
-                    choices = all_reactive_values$wf2_outputs,
-                    multiple = FALSE
-                ),
-                downloadButton(
-                    outputId = "tabular_download",
-                    label = "Download data"
-                )                
-            )
-        }
-    })
-    
-    # wf2
+    # setup reactive values
     wf1_initial_input_files <- list.files("input/wf1")
     wf1_initial_output_files <- list.files("output/wf1")
     wf2_initial_input_files <- list.files("input/wf2")
     wf2_initial_output_files <- list.files("output/wf2")
     all_reactive_values <- reactiveValues(
         sites = deims_site_name_mappings,
+        zones = deims_site_zone_options,
         wf1_inputs = wf1_initial_input_files,
         wf1_outputs = wf1_initial_output_files,
         wf2_inputs = wf2_initial_input_files,
         wf2_outputs = wf2_initial_output_files
+    )
+
+    # "input" UI rendering
+    # if there are raster files available, let user choose via dropdown
+    output$wf1_files <- renderUI({
+        selectInput(
+            inputId = "wf1_selected_file",
+            label = "Data to crop",
+            # any way to force this to be empty on start, even if there are options ready?
+            #selected = "",
+            choices = all_reactive_values$wf1_inputs,
+            multiple = FALSE
         )
+    })
+
+    # if there are tabular files available, let user choose via dropdown
+    output$wf2_files <- renderUI({
+        selectInput(
+            inputId = "wf2_selected_file",
+            label = "Data to crop",
+            # any way to force this to be empty on start, even if there are options ready?
+            #selected = "",
+            choices = all_reactive_values$wf2_inputs,
+            multiple = FALSE
+        )
+    })
+
+    # if raster data is chosen, prompt user for title to use in plot
+    output$wf1_title <- renderUI({
+        if(length(all_reactive_values$wf1_inputs)==0){
+            # pass
+        }
+        else{
+            textInput(
+                inputId = "wf1_data_name",
+                label = "Plot title",
+                value = "Custom"
+            )
+        }
+    })
+
+    # creates sheet select box if Excel selected
+    output$wf2_user_input_sheets <- renderUI({
+        if(length(all_reactive_values$wf2_inputs)==0){
+            # pass
+        }
+        else{
+            if(endsWith(input$wf2_selected_file,"csv")){
+                # pass
+            }
+            else{
+                qualified_filename <- paste0("input/wf2/",input$wf2_selected_file)
+                selectInput(
+                    inputId = "wf2_sheet_key",
+                    label = "Sheet to use",
+                    choices = excel_sheets(qualified_filename),
+                    multiple = FALSE
+                )
+            }
+        }
+    })
+
+    # creates column selection based on upload + Excel sheet
+    output$wf2_columns <- renderUI({
+        if(length(all_reactive_values$wf2_inputs)==0){
+            # pass
+        }
+        else{
+            list(selectInput(
+                inputId = "plot_key",
+                label = "Column to plot",
+                # [-1] drops the first column, i.e. the ID
+                choices = names(wf2_user_input())[-1],
+                multiple = FALSE
+            ),
+            textInput(
+                inputId = "wf2_data_name",
+                label = "Plot title",
+                value = "Custom"
+            )
+            )
+        }
+    })
+
     # populates available zones based on site by reading python metadata
     output$wf2_site_zone_picker <- renderUI({
         selectInput(
             inputId = "data_grouping",
-            label = "This data is grouped by...",
-            choices = deims_site_zone_options[[input$comparison_site]],
+            label = "Zones to extract",
+            choices = all_reactive_values$zones[[input$deims_site]],
             multiple = FALSE
-            )
+        )
     })
+
+    # render DEIMS site picker - reactive in case user adds site
+    output$deims_site_picker <- renderUI({
+        selectInput(
+            inputId = "deims_site",
+            label = "DEIMS site",
+            choices = all_reactive_values$sites,
+            multiple = FALSE
+        )
+    })
+
     # add new DEIMS sites on user input
     observeEvent(input$new_site, {
         addDeimsSite(input$new_deims_ID,TRUE,FALSE)
         all_reactive_values$sites <- py$deims_site_name_mappings
+        all_reactive_values$zones <- py$deims_site_zone_options
     })
-    # save raster output on user input
-    observeEvent(input$save_raster_output, {
-        # take everything off input filename after first dot - foo.x.y.z becomes foo
-        original_filename_without_extension <- strsplit(input$wf1_selected_file,".",TRUE)[[1]][1]
-        unqualified_filename <- paste0(original_filename_without_extension,"-",input$deims_filter,".tif")
-        qualified_filename <- paste0("output/wf1/",unqualified_filename)
-        file.copy("/tmp/masked.tif",qualified_filename)
-        all_reactive_values$wf1_outputs <- list.files("output/wf1")
-        updateSelectInput(
-            inputId = "raster_download_choice",
-            selected = unqualified_filename
-        )
-    })
-    # save tabular output on user input
-    observeEvent(input$save_tabular_output, {
-        # take everything off input filename after first dot - foo.x.y.z becomes foo
-        original_filename_without_extension <- strsplit(input$wf2_selected_file,".",TRUE)[[1]][1]
-        unqualified_filename <- paste0(original_filename_without_extension,"-",input$comparison_site,"-",input$data_grouping,".csv")
-        qualified_filename <- paste0("output/wf2/",unqualified_filename)
-        write_csv(tabular_output(),qualified_filename)
-        all_reactive_values$wf2_outputs <- list.files("output/wf2")
-        updateSelectInput(
-            inputId = "tabular_download_choice",
-            selected = unqualified_filename
-        )
-    })
-    # render DEIMS site picker - reactive in case user adds site
-    output$wf2_deims_site_picker <- renderUI({
-        selectInput(
-            inputId = "comparison_site",
-            label = "To which site boundaries should the data be trimmed?",
-            choices = all_reactive_values$sites,
-            multiple = FALSE
-            )
-    })
+
     # reads input file, if it exists, and "returns" tibble
     wf2_user_input <- reactive({
         if(is.null(input$wf2_selected_file)){
@@ -302,133 +223,209 @@ server <- function(input,output){
             }
         }
     })
-    # creates sheet select box if Excel uploaded
-    output$wf2_user_input_sheets <- renderUI({
-        if(length(all_reactive_values$wf2_inputs)==0){
-            # pass
-        }
-        else{
-            if(endsWith(input$wf2_selected_file,"csv")){
-                # pass
-            }
-            else{
-                qualified_filename <- paste0("input/wf2/",input$wf2_selected_file)
-                selectInput(
-                    inputId = "wf2_sheet_key",
-                    label = "Choose sheet to use",
-                    choices = excel_sheets(qualified_filename),
-                    multiple = FALSE
-                )
-            }
-        }
-    })
-    # creates column selection based on upload + Excel sheet
-    output$wf2_columns <- renderUI({
-        if(length(all_reactive_values$wf2_inputs)==0){
-            # pass
-        }
-        else{
-            list(selectInput(
-                inputId = "plot_key",
-                label = "Choose column to plot",
-                # [-1] drops the first column, i.e. the ID
-                choices = names(wf2_user_input())[-1],
-                multiple = FALSE
-                ),
-                textInput(
-                    inputId = "tabular_data_name",
-                    label = "What is this dataset called?",
-                    value = "Custom"
-                    )
-            )
-            }
-    })
-    # combines all inputs and returns tibble for download
-    tabular_output <- reactive({
-        if(is.null(input$wf2_selected_file)){
-            # pass
-        }
-        else{
-            aggregateTabularDataset(wf2_user_input(),input$comparison_site,input$data_grouping,input$plot_key,input$tabular_data_name)
-        }
-    })
-    
-    # outputs
-    output$raster_download <- downloadHandler(
-        filename = function(){
-            input$raster_download_choice
-        },
-        content = function(file){
-            qualified_filename <- paste0("output/wf1/",input$raster_download_choice)
-            file.copy(qualified_filename,file)
-        })
-    
-    output$raster_plot <- renderImage({
+
+    # "output" UI rendering
+    # render wf1 preview, triggering the workflow if needed
+    output$wf1_plot <- renderImage({
         if(length(all_reactive_values$wf1_inputs)==0){
             list(src="eLTER-logo.png",alt="eLTER logo",width=645,height=233)
         }
         else{
-            raster_output()
+            wf1_output()
             list(src="/tmp/crop.png",alt="Plot of cropped data")
         }
     }, deleteFile = FALSE)
-    
-    # watch for wf2 uploads
-    tabular_upload_watcher <- observe({
-        uploaded_file <- input$tabular_upload
-        if(is.null(uploaded_file)){
-            # pass
-        }
-        else{
-            # process user upload, taking its validity for granted
-            dataset_path <- paste0("input/wf2/",input$tabular_upload$name)
-            file.copy(input$tabular_upload$datapath,dataset_path)
-            all_reactive_values$wf2_inputs <- list.files("input/wf2")
-            updateSelectInput(
-                inputId = "wf2_selected_file",
-                selected = input$tabular_upload$name
-            )
-        }
-    })
 
-    # reactive observer to check for uploads. Required to call handle_raster_upload,
-    # although handle_raster_upload can perhaps just be merged here.
-    raster_upload_watcher <- observe({
-        uploaded_file <- input$raster_upload
-        if(is.null(uploaded_file)){
-            # pass
-        }
-        else{
-            handle_raster_upload()
-        }
-    })
-        
-    output$raster_plot_download <- downloadHandler(
-        filename = "plot.png",
-        content = function(file){
-            file.copy("/tmp/crop.png",file)
-        })
-    
-    output$tabular_download <- downloadHandler(
-        filename = function(){
-            input$tabular_download_choice
-        },
-        content = function(file){
-            qualified_filename <- paste0("output/wf2/",input$tabular_download_choice)
-            file.copy(qualified_filename,file)
-        })
-    
-    output$tabular_plot <- renderImage({
+    # render wf2 preview, triggering the workflow if needed
+    output$wf2_plot <- renderImage({
         if(length(all_reactive_values$wf2_inputs)==0){
             list(src="eLTER-logo.png",alt="eLTER logo",width=645,height=233)
         }
         else{
-            tabular_output()
-            list(src="/tmp/plot.png",alt="Plot of aggregated data")            
+            wf2_output()
+            list(src="/tmp/plot.png",alt="Plot of aggregated data")
         }
     }, deleteFile = FALSE)
 
-    output$tabular_plot_download <- downloadHandler(
+    # render options when there is wf1 input data being processed
+    output$wf1_output_options <- renderUI({
+        if(length(all_reactive_values$wf1_inputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                actionButton("save_wf1_output", "Save data"),
+                downloadButton(
+                    outputId = "wf1_plot_download",
+                    label = "Download plot"
+                )
+            )
+        }
+    })
+
+    # render options when there is wf2 input data being processed
+    output$wf2_output_options <- renderUI({
+        if(length(all_reactive_values$wf2_inputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                actionButton("save_wf2_output", "Save data"),
+                downloadButton(
+                    outputId = "wf2_plot_download",
+                    label = "Download plot"
+                )
+            )
+        }
+    })
+
+    # render options for when output is available to download
+    output$wf1_download_options <- renderUI({
+        if(length(all_reactive_values$wf1_outputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                # selectinput for choosing download file, updated on save button click
+                selectInput(
+                    inputId = "wf1_download_choice",
+                    label = "Select data to download",
+                    choices = all_reactive_values$wf1_outputs,
+                    multiple = FALSE
+                ),
+                downloadButton(
+                    outputId = "wf1_download",
+                    label = "Download data"
+                )
+            )
+        }
+    })
+
+    # render options for when output is available to download
+    output$wf2_download_options <- renderUI({
+        if(length(all_reactive_values$wf2_outputs)==0){
+            # pass
+        }
+        else{
+            tagList(
+                # selectinput for choosing download file, updated on save button click
+                selectInput(
+                    inputId = "wf2_download_choice",
+                    label = "Select data to download",
+                    choices = all_reactive_values$wf2_outputs,
+                    multiple = FALSE
+                ),
+                downloadButton(
+                    outputId = "wf2_download",
+                    label = "Download data"
+                )
+            )
+        }
+    })
+
+    # "logic"
+    # execute wf1, returning nothing - output is to disk
+    wf1_output <- reactive({
+        path_to_dataset <- paste0("input/wf1/",input$wf1_selected_file)
+        cropRasterDataset(path_to_dataset,input$deims_site,input$wf1_data_name)
+    })
+
+    # execute wf2, returning tibble for download
+    wf2_output <- reactive({
+        aggregateTabularDataset(wf2_user_input(),input$deims_site,input$data_grouping,input$plot_key,input$wf2_data_name)
+    })
+
+    # watch for wf1 uploads and handle them
+    wf1_upload_watcher <- observe({
+        if(is.null(input$wf1_upload)){
+            # pass
+        }
+        else{
+            # process user upload, taking its validity for granted
+            dataset_path <- paste0("input/wf1/",input$wf1_upload$name)
+            file.copy(input$wf1_upload$datapath,dataset_path)
+            all_reactive_values$wf1_inputs <- list.files("input/wf1")
+            updateSelectInput(
+                inputId = "wf1_selected_file",
+                selected = input$wf1_upload$name
+            )
+        }
+    })
+
+    # watch for wf2 uploads and handle them
+    wf2_upload_watcher <- observe({
+        if(is.null(input$wf2_upload)){
+            # pass
+        }
+        else{
+            # process user upload, taking its validity for granted
+            dataset_path <- paste0("input/wf2/",input$wf2_upload$name)
+            file.copy(input$wf2_upload$datapath,dataset_path)
+            all_reactive_values$wf2_inputs <- list.files("input/wf2")
+            updateSelectInput(
+                inputId = "wf2_selected_file",
+                selected = input$wf2_upload$name
+            )
+        }
+    })
+
+    # save raster output on user input
+    observeEvent(input$save_wf1_output, {
+        # take everything off input filename after first dot - foo.x.y.z becomes foo
+        original_filename_without_extension <- strsplit(input$wf1_selected_file,".",TRUE)[[1]][1]
+        unqualified_filename <- paste0(original_filename_without_extension,"-",input$deims_site,".tif")
+        qualified_filename <- paste0("output/wf1/",unqualified_filename)
+        file.copy("/tmp/masked.tif",qualified_filename)
+        all_reactive_values$wf1_outputs <- list.files("output/wf1")
+        updateSelectInput(
+            inputId = "wf1_download_choice",
+            selected = unqualified_filename
+        )
+    })
+
+    # save tabular output on user input
+    observeEvent(input$save_wf2_output, {
+        # take everything off input filename after first dot - foo.x.y.z becomes foo
+        original_filename_without_extension <- strsplit(input$wf2_selected_file,".",TRUE)[[1]][1]
+        unqualified_filename <- paste0(original_filename_without_extension,"-",input$deims_site,"-",input$data_grouping,".csv")
+        qualified_filename <- paste0("output/wf2/",unqualified_filename)
+        write_csv(wf2_output(),qualified_filename)
+        all_reactive_values$wf2_outputs <- list.files("output/wf2")
+        updateSelectInput(
+            inputId = "wf2_download_choice",
+            selected = unqualified_filename
+        )
+    })
+
+    # handle wf1 data download
+    output$wf1_download <- downloadHandler(
+        filename = function(){
+            input$wf1_download_choice
+        },
+        content = function(file){
+            qualified_filename <- paste0("output/wf1/",input$wf1_download_choice)
+            file.copy(qualified_filename,file)
+        })
+
+    # handle wf1 plot download
+    output$wf1_plot_download <- downloadHandler(
+        filename = "plot.png",
+        content = function(file){
+            file.copy("/tmp/crop.png",file)
+        })
+
+    # handle wf2 data download
+    output$wf2_download <- downloadHandler(
+        filename = function(){
+            input$wf2_download_choice
+        },
+        content = function(file){
+            qualified_filename <- paste0("output/wf2/",input$wf2_download_choice)
+            file.copy(qualified_filename,file)
+        })
+
+    # handle wf2 plot download
+    output$wf2_plot_download <- downloadHandler(
         filename = "plot.png",
         content = function(file){
             file.copy("/tmp/plot.png",file)
