@@ -9,13 +9,6 @@ import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # SETUP
-
-# ensure input and output folders exist in working directory - no checks to where working directory is
-os.makedirs('input/wf1',exist_ok=True)
-os.makedirs('input/wf2',exist_ok=True)
-os.makedirs('output/wf1',exist_ok=True)
-os.makedirs('output/wf2',exist_ok=True)
-
 # initialise validated zones and directories to attempt to load metadata from
 validated_zones = {}
 nuts_zones_to_try = ['nuts0','nuts1','nuts2','nuts3']
