@@ -35,7 +35,7 @@ You are welcome to install the system elsewhere using the [installation guide](d
 ## Sources
 Sample data (`/data` folder)
 - Scottish birth data: https://statistics.gov.scot/home
-- Spain grassland data: https://www.copernicus.eu/
+- Nitrous oxide data (`totaln2o17.asc` converted to GeoTIFF): https://naei.beis.gov.uk/data/map-uk-das
 
 Shapefiles
 - DEIMS sites: https://deims.org/
