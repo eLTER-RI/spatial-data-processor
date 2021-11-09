@@ -9,9 +9,6 @@ import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # SETUP
-# load nuts shapefile for wf1
-all_nuts = gpd.read_file('shapefiles/zones/nuts2016/NUTS_RG_01M_2016_3857.shp.zip')
-
 # initialise validated zones and directories to attempt to load metadata from
 validated_zones = {}
 nuts_zones_to_try = ['nuts0','nuts1','nuts2','nuts3']
@@ -137,18 +134,15 @@ deims_site_zone_options = {
 # WORKFLOW DEFINITIONS
 # "gridded" workflow
 # this raster dataset (1) to this shapefile boundary (2)
-def cropRasterDataset(dataset,zone_type,region,plot_data_type):
+def cropRasterDataset(dataset,region,plot_data_type):
 
     # setup
     # load user data
     active_dataset = rio.open(dataset)
+    
     # get site boundary and name from user input
-    if zone_type == 'deims':
-        site_boundary = validated_deims_sites[region]['site_boundaries']
-        site_name = validated_deims_sites[region]['metadata']['displayName']
-    elif zone_type == 'nuts':
-        site_boundary = all_nuts[all_nuts['NUTS_ID']==region]
-        site_name = region
+    site_boundary = validated_deims_sites[region]['site_boundaries']
+    site_name = validated_deims_sites[region]['metadata']['displayName']
 
     # coerce site to dataset CRS
     if site_boundary.crs != active_dataset.crs:
@@ -210,19 +204,11 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     ax.set_axis_off()
     ax.set_title('{} data cropped to {} by {}'.format(plot_title,site_name,admin_zones_name))
     # plot output, save to temporary image and close plot to save memory
-    #
-    # The commented statement includes the missing_kwds argument for prettier
-    # plot output when there's missing data. At some stage this seems to
-    # have fallen foul of a bug in geopandas where supplying "missing_kwds"
-    # when there's no missing data causes an error.
-    #
-    # Instead of checking for missing values, it will be easier to just 
-    # remove the missing_kwds argument until the bug is fixed, as there is
-    # already a PR raised on GitHub for geopandas which fixes the issue.
-    #
-    #merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
-    merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax)
+    merged_dataset.plot(ax=ax,column=plot_key,legend=True,cax=cax,missing_kwds={'color':'lightgrey'})
     fig.savefig('/tmp/plot.png')
     plt.close(fig)
-
-    return merged_dataset.drop(columns=[right_on_key,'geometry'])
+    
+    if right_on_key != 'zone_id':
+        return merged_dataset.drop(columns=[right_on_key,'geometry'])
+    else:
+        return merged_dataset.drop(columns='geometry')

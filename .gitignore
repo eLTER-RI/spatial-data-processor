@@ -6,3 +6,5 @@ packrat/init.R
 .Rhistory
 .Rprofile
 reticulate-venv/
+input/
+output/

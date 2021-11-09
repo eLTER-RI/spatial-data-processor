@@ -1,39 +1,45 @@
 PackratFormat: 1.4
-PackratVersion: 0.5.0
+PackratVersion: 0.7.0
 RVersion: 4.0.4
 Repos:
     CRAN=https://packagemanager.rstudio.com/all/__linux__/focal/latest
 
-Package: BH
-Source: RSPM
-Version: 1.75.0-0
-Hash: 8426697ec75df1ac7b9bc664741f383a
-
 Package: R6
 Source: RSPM
-Version: 2.5.0
-Hash: 25ebbd2664a276c915984da5c820c404
+Version: 2.5.1
+Hash: 54378e523d0281f8d38c379484a3b7b5
 
 Package: Rcpp
 Source: RSPM
-Version: 1.0.6
-Hash: d891b607ea796cf30abfe4795380423f
+Version: 1.0.7
+Hash: 3067a413f1457c3c1d88bf39026b179f
 
 Package: base64enc
 Source: RSPM
 Version: 0.1-3
 Hash: c590d29e555926af053055e23ee79efb
 
+Package: bit
+Source: RSPM
+Version: 4.0.4
+Hash: 75dd3abfa313c948b007aef6dedd3c87
+
+Package: bit64
+Source: RSPM
+Version: 4.0.5
+Hash: f82a5f545b6ed024639c3b9358c5e19f
+Requires: bit
+
 Package: bslib
 Source: RSPM
-Version: 0.2.5.1
-Hash: 4bc2bf9bf4bffb2dd536cc867bf0b293
-Requires: htmltools, jquerylib, jsonlite, magrittr, rlang, sass
+Version: 0.3.1
+Hash: 86fdae1dfb23e3154ae70b0999a2a01d
+Requires: htmltools, jquerylib, jsonlite, rlang, sass
 
 Package: cachem
 Source: RSPM
-Version: 1.0.5
-Hash: 7ade2ba1d62898c85dc5b677b2c1dc4a
+Version: 1.0.6
+Hash: e1d5d860b02caa2f56f038b3b8259160
 Requires: fastmap, rlang
 
 Package: cellranger
@@ -44,8 +50,8 @@ Requires: rematch, tibble
 
 Package: cli
 Source: RSPM
-Version: 2.5.0
-Hash: f4afb5d894854c102b267975d45e380c
+Version: 3.0.1
+Hash: 60cf83a88772ada4a5e2493fb1c4070d
 Requires: glue
 
 Package: clipr
@@ -60,8 +66,8 @@ Hash: 77f4ba718e2bad1877ef26e48cf8fa43
 
 Package: cpp11
 Source: RSPM
-Version: 0.2.7
-Hash: 872459b771164e51ce5ac17ade5f0344
+Version: 0.4.0
+Hash: 98c5fdbb506454d3a21131be0727977b
 
 Package: crayon
 Source: RSPM
@@ -70,15 +76,8 @@ Hash: 2e1b6e4b4bc63ebe2aaee1546b871329
 
 Package: digest
 Source: RSPM
-Version: 0.6.27
-Hash: 8ba156629c1537635b39332c93d8ed33
-
-Package: dplyr
-Source: RSPM
-Version: 1.0.6
-Hash: da3b72d851a648c4994f40459d06ef23
-Requires: R6, ellipsis, generics, glue, lifecycle, magrittr, pillar,
-    rlang, tibble, tidyselect, vctrs
+Version: 0.6.28
+Hash: d2e15f0b261d4710348e37d3eb58841a
 
 Package: ellipsis
 Source: RSPM
@@ -96,37 +95,44 @@ Source: RSPM
 Version: 1.1.0
 Hash: e4d212b14d40b91c791c0b9d3b6ffd99
 
+Package: fontawesome
+Source: RSPM
+Version: 0.2.2
+Hash: 81ad575d20858542199b870221ba006b
+Requires: htmltools, rlang
+
 Package: fs
 Source: RSPM
 Version: 1.5.0
 Hash: 918ea5c88cad73d5d5b529ca98f8ad11
-
-Package: generics
-Source: RSPM
-Version: 0.1.0
-Hash: c265031f21f6435ffaa9633eb64c3095
 
 Package: glue
 Source: RSPM
 Version: 1.4.2
 Hash: afa798ba9deec3676e20300b79094749
 
+Package: here
+Source: RSPM
+Version: 1.0.1
+Hash: 606352b60a7cb2da5bcd4ed1c8753a81
+Requires: rprojroot
+
 Package: hms
 Source: RSPM
-Version: 1.1.0
-Hash: 5d7e8130890a175dedf39da8c7b5a62c
+Version: 1.1.1
+Hash: 788cba0290407b815f3c15e6967079cd
 Requires: ellipsis, lifecycle, pkgconfig, rlang, vctrs
 
 Package: htmltools
 Source: RSPM
-Version: 0.5.1.1
-Hash: 297e3b95a781d9a6fb7259e0f6824020
-Requires: base64enc, digest, rlang
+Version: 0.5.2
+Hash: b28ba309140d26d4c282c4b5f91240aa
+Requires: base64enc, digest, fastmap, rlang
 
 Package: httpuv
 Source: RSPM
-Version: 1.6.1
-Hash: 12aef65c579f4a2bec728c6518fbd4f1
+Version: 1.6.3
+Hash: 385608a6954fa92d5d35eb315e096559
 Requires: R6, Rcpp, later, promises
 
 Package: jquerylib
@@ -142,15 +148,15 @@ Hash: a5965fb563ba3643e75c425a82f935e6
 
 Package: later
 Source: RSPM
-Version: 1.2.0
-Hash: f0643bd220035619f3743aaed7c3b2c9
+Version: 1.3.0
+Hash: 70a10fa06a985a81d92b4e72c57af5ff
 Requires: Rcpp, rlang
 
 Package: lifecycle
 Source: RSPM
-Version: 1.0.0
-Hash: 0c18dc7a4e21abdc8132b7cac2b5fcb4
-Requires: glue, rlang
+Version: 1.0.1
+Hash: 30efedcf3d4478fe2e755b3b256f809a
+Requires: rlang, glue
 
 Package: magrittr
 Source: RSPM
@@ -159,19 +165,19 @@ Hash: d3c166b0573ae8c918edf7221dfe7380
 
 Package: mime
 Source: RSPM
-Version: 0.10
-Hash: 20b0f90f3478d2baae76be49777ac9fe
+Version: 0.12
+Hash: 98a37137be334916af8af26354bb37e9
 
 Package: packrat
 Source: RSPM
-Version: 0.5.0
-Hash: 498643e765d1442ba7b1160a1df3abf9
+Version: 0.7.0
+Hash: 3d49688287bd2246cd8a58e233be39d5
 
 Package: pillar
 Source: RSPM
-Version: 1.6.1
-Hash: a32895ba270cc966f841a55296b275e5
-Requires: cli, crayon, ellipsis, fansi, lifecycle, rlang, utf8, vctrs
+Version: 1.6.4
+Hash: ed40da412929e0f8e8808c35356af796
+Requires: ellipsis, fansi, lifecycle, rlang, cli, crayon, utf8, vctrs
 
 Package: pkgconfig
 Source: RSPM
@@ -197,7 +203,7 @@ Requires: R6, crayon, hms, prettyunits
 Package: promises
 Source: RSPM
 Version: 1.2.0.1
-Hash: e1b84208834fc1e2e75099ec002b7904
+Hash: ca7f06c513ae21695c2005d3cfdf740d
 Requires: R6, Rcpp, later, magrittr, rlang
 
 Package: purrr
@@ -213,15 +219,15 @@ Hash: fd602edfd7dbf365642e35dd9cc97958
 
 Package: readr
 Source: RSPM
-Version: 1.4.0
-Hash: d08598cdbd71823accdbd570383c6338
-Requires: BH, R6, cli, clipr, cpp11, crayon, hms, lifecycle, rlang,
-    tibble
+Version: 2.0.2
+Hash: 55db55f69274adb2e225f074b51bfb14
+Requires: R6, cli, clipr, cpp11, crayon, hms, lifecycle, rlang, tibble,
+    tzdb, vroom
 
 Package: readxl
 Source: RSPM
 Version: 1.3.1
-Hash: ce1e2774d5e9f7694a85bf824bfbcca4
+Hash: 25b47dc319062c24a878e6a170a7b702
 Requires: Rcpp, cellranger, progress, tibble
 
 Package: rematch
@@ -231,28 +237,33 @@ Hash: ad4faf59e7611117ff165817074c50c7
 
 Package: reticulate
 Source: RSPM
-Version: 1.20
-Hash: dfe71a46a15cbd6b1bc5c846f7f5ca48
-Requires: Rcpp, jsonlite, png, rappdirs, withr
+Version: 1.22
+Hash: 6f86109eccf2915c70c83d1ff19cfccb
+Requires: Rcpp, here, jsonlite, png, rappdirs, withr
 
 Package: rlang
 Source: RSPM
-Version: 0.4.11
-Hash: 765f56f2e0697cfd1ad4c9d34e4efedc
+Version: 0.4.12
+Hash: ad941c2183fd3f7695750d7a3ee4e350
+
+Package: rprojroot
+Source: RSPM
+Version: 2.0.2
+Hash: bdb6a7f2b3c25b8c710615cefdde1af0
 
 Package: sass
 Source: RSPM
 Version: 0.4.0
 Hash: 898260598d59907eda6f28dfec65473c
-Requires: R6, fs, htmltools, rappdirs, rlang
+Requires: htmltools, rlang, R6, fs, rappdirs
 
 Package: shiny
 Source: RSPM
-Version: 1.6.0
-Hash: 35e21ce401cc3b1fae93a190b32f6a65
-Requires: R6, bslib, cachem, commonmark, crayon, digest, ellipsis,
-    fastmap, glue, htmltools, httpuv, jsonlite, later, lifecycle, mime,
-    promises, rlang, sourcetools, withr, xtable
+Version: 1.7.1
+Hash: 7270787dc86efbcfba473df7639fe5cb
+Requires: R6, bslib, cachem, commonmark, crayon, ellipsis, fastmap,
+    fontawesome, glue, htmltools, httpuv, jsonlite, later, lifecycle,
+    mime, promises, rlang, withr, sourcetools, xtable
 
 Package: sourcetools
 Source: RSPM
@@ -261,10 +272,10 @@ Hash: d093478ac90064e670cd4bf1a99b47b6
 
 Package: tibble
 Source: RSPM
-Version: 3.1.2
-Hash: 83c55123413a6b6d3e777fba5ae667a3
-Requires: ellipsis, fansi, lifecycle, magrittr, pillar, pkgconfig,
-    rlang, vctrs
+Version: 3.1.5
+Hash: 23e11db34011faa0ebab892afc52f9c7
+Requires: rlang, ellipsis, fansi, lifecycle, magrittr, pillar,
+    pkgconfig, vctrs
 
 Package: tidyselect
 Source: RSPM
@@ -272,16 +283,29 @@ Version: 1.1.1
 Hash: 6415fa4c6b3b5417aa4d3381845d654c
 Requires: ellipsis, glue, purrr, rlang, vctrs
 
+Package: tzdb
+Source: RSPM
+Version: 0.1.2
+Hash: 0c4500aa38b953eeb639ec904668efd0
+Requires: cpp11
+
 Package: utf8
 Source: RSPM
-Version: 1.2.1
-Hash: 4ae5f77d617721b66be32d2b47bc9148
+Version: 1.2.2
+Hash: ae77ea6ebb503eaa6ee3b7ca80ea4f1b
 
 Package: vctrs
 Source: RSPM
 Version: 0.3.8
 Hash: e2e7a28fd30d8df018965c923afd1195
 Requires: ellipsis, glue, rlang
+
+Package: vroom
+Source: RSPM
+Version: 1.5.5
+Hash: d20e90d3be71ba615cd02ce2819015a6
+Requires: bit64, cli, cpp11, crayon, glue, hms, lifecycle, progress,
+    rlang, tibble, tzdb, vctrs, tidyselect, withr
 
 Package: withr
 Source: RSPM
