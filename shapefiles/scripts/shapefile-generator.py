@@ -1,21 +1,20 @@
 import os
 import json
-import string
 import urllib.request
+
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 # this function expects two GeoDataFrames and two strings and returns a GeoDataFrame
 # representing the decomposition of the first GDF by the elements of the second gdf.
-# 
+#
 # ltser_site - the gdf to decompose
 # admin_zones - a gdf of "admin zones" describing the areas to break ltser_site into
 # zone_id - the column name of the zone ID in admin_zones
 # zone_name - the column name of the zone name in admin_zones
-
 def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
-
     # convert CRS of dataset to match admin zones
     # this will be the CRS of the output gdf
     ltser_site = ltser_site.to_crs(admin_zones.crs)
@@ -66,98 +65,14 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
     else:
         return gdf_out
 
-# load NUTS zones 0-3, as these are the only mandatory zones
-nuts_zones = {}
-nuts_names = ['nuts0', 'nuts1', 'nuts2', 'nuts3']
 
-# try to load each directory as a NUTS zone
-for nuts_level in nuts_names:
-    # metadata
-    try:
-        # read the metadata file as JSON
-        with open('shapefiles/zones/nuts2016/{}/metadata.json'.format(nuts_level)) as f:
-            raw_metadata = f.read()
-        metadata = json.loads(raw_metadata)
-        # check for required keys
-        keys = list(metadata)
-        if 'displayName' not in keys or 'IDColumn' not in keys or 'nameColumn' not in keys:
-            raise Exception
-    except:
-        print('FATAL: metadata could not be loaded for zone {} - aborting'.format(nuts_level))
-        raise
-    # raw shapefile
-    try:
-        # load shapefile, make no checks
-        zone_boundaries = gpd.read_file('zip://shapefiles/zones/nuts2016/{}/boundaries.shp.zip'.format(nuts_level))
-    except:
-        print('FATAL: zone boundaries could not be loaded for zone {} - skipping'.format(potential_zone))
-        raise
-    # everything succeeded, so add zone to validated dict
-    nuts_zones[nuts_level] = {
-            'metadata': metadata,
-            'zone_boundaries': zone_boundaries,
-            }
-
-# DEIMS interface code
-#
-# returns True if a string is a well formed DEIMS ID suffix
-# no checks are made of whether it is "real"
-def isValidDeimsIDSuffix(deims_site_id_suffix,debug=False):
-    # check type
-    if type(deims_site_id_suffix) != str:
-        if debug:
-            print('Type should be string')
-        return False
-
-    # check length
-    if len(deims_site_id_suffix) != 36:
-        if debug:
-            print('Incorrect length')
-        return False
-
-    # check for expected dashes
-    split_id_suffix = deims_site_id_suffix.split('-')
-    if [len(x) for x in split_id_suffix] != [8, 4, 4, 4, 12]:
-        if debug:
-            print('Incorrect shape')
-        return False
-
-    # check hex characters only - nested "all"s because .split() returns list
-    if not all(
-            all(
-                char in string.hexdigits for char in substring
-                ) for substring in split_id_suffix
-            ):
-        if debug:
-            print('Hex characters only')
-        return False
-
-    # everything's ok
-    return True
-
-# makes no checks, blindly creates the relevant directories needed
-# for a new DEIMS site
-def bootstrapDeimsDirectory(deims_site_id_suffix):
-    # make minimal directories, to be populated with shapefiles and metadata elsewhere
-    os.makedirs('shapefiles/deims/{}/raw/'.format(deims_site_id_suffix),exist_ok=True)
-    # makedirs creates intermediate directories, so we set up the minimal
-    # guaranateed composite directories directly
-    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts0'.format(deims_site_id_suffix),exist_ok=True)
-    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts1'.format(deims_site_id_suffix),exist_ok=True)
-    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts2'.format(deims_site_id_suffix),exist_ok=True)
-    os.makedirs('shapefiles/deims/{}/composites/nuts2016/nuts3'.format(deims_site_id_suffix),exist_ok=True)
-
-    return 0
-
-def fetchDeimsSiteMetadata(deims_site_id_suffix,debug=False):
+# helper
+def fetchDeimsSiteMetadata(deims_site_id_suffix):
     base_url = 'https://deims.org/api/sites/{}'
 
     # fetch and parse metadata
     with urllib.request.urlopen(base_url.format(deims_site_id_suffix)) as f:
         full_metadata = json.loads(f.read().decode('utf-8'))
-
-    if debug:
-        print(full_metadata)
 
     # take only what we need
     compact_metadata = {
@@ -169,83 +84,101 @@ def fetchDeimsSiteMetadata(deims_site_id_suffix,debug=False):
 
     return compact_metadata
 
+
+# helper
 def fetchDeimsSiteBoundaries(deims_site_id_suffix):
     # even though IDs are given with a prefix it seems unlikely
     # this prefix will change
-    deims_site_id_string = 'https://deims.org/'+ deims_site_id_suffix
+    deims_site_id_string = f'https://deims.org/{deims_site_id_suffix}'
     base_url = 'https://deims.org/geoserver/deims/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=deims:deims_sites_boundaries&srsName=EPSG:4326&CQL_FILTER=deimsid=%27{}%27&outputFormat=SHAPE-ZIP'
-    zip_destination = 'shapefiles/deims/{}/raw/boundaries.shp.zip'.format(deims_site_id_suffix)
 
-    # fetch shapefile as zip
-    urllib.request.urlretrieve(
-            base_url.format(deims_site_id_string),
-            zip_destination
-            )
+    # great, you can just pass URLs directly to geopandas
+    boundaries = gpd.read_file(base_url.format(deims_site_id_string))
 
-    return zip_destination
+    return boundaries
 
 
-# putting the above together
-# test case: trnava - https://deims.org/fabf28c6-8fa1-4a81-aaed-ab985cbc4906
-def addDeimsSite(deims_site_id_suffix,interactive=False,debug=False):
-    # check input is valid, trimming full IDs
-    #
-    # this architecture should probably be integrated
-    # with the ID validation checks though, perhaps
-    # a unified isDeimsID which returns a normalised
-    # form, either full or suffix-only
+# complete
+def getNewDeimsSite(deims_site_id_suffix,debug=False):
+    # TODO: incorporate out-of-repo DEIMS module for validation and fetching functionality
     if deims_site_id_suffix.startswith('https://deims.org/'):
         deims_site_id_suffix = deims_site_id_suffix[18:]
         if debug:
             print('Possible full DEIMS ID detected - trimmed input to {}'.format(deims_site_id_suffix))
-    if not isValidDeimsIDSuffix(deims_site_id_suffix,debug=debug):
-        print('Invalid ID')
-        return 1
 
-    base_dir = 'shapefiles/deims/{}'.format(deims_site_id_suffix)
-    metadata_destination = '{}/{}'.format(base_dir,'metadata.json')
+    # we probably have a valid DEIMS ID, proceed
+    # fetch metadata
+    metadata = fetchDeimsSiteMetadata(deims_site_id_suffix)
 
-    bootstrapDeimsDirectory(deims_site_id_suffix)
-    # fetch and save metadata
-    metadata = fetchDeimsSiteMetadata(deims_site_id_suffix,debug=debug)
-    with open(metadata_destination,'w') as f:
-        f.write(json.dumps(metadata,indent=4))
+    # fetch boundaries
+    boundaries = fetchDeimsSiteBoundaries(deims_site_id_suffix)
 
-    # fetch and save raw boundaries, saving the returned path to be read next
-    boundaryPath = fetchDeimsSiteBoundaries(deims_site_id_suffix)
-    # read boundaries then aggregate with NUTS and save
-    deims_site_boundaries = gpd.read_file(boundaryPath)
-    if interactive:
-        # save composites dict to update interface
-        composites = {}
-    for nuts_level in list(nuts_zones):
+    # create composites
+    composites = {}
+    for european_zone in [x for x in list(validated_zones) if validated_zones[x]['nat_zone_group'] is None]:
         composite = decomposeSite(
-                deims_site_boundaries,
-                nuts_zones[nuts_level]['zone_boundaries'],
-                nuts_zones[nuts_level]['metadata']['IDColumn'],
-                nuts_zones[nuts_level]['metadata']['nameColumn'],
+                boundaries,
+                validated_zones[european_zone]['boundaries'],
+                validated_zones[european_zone]['metadata']['IDColumn'],
+                validated_zones[european_zone]['metadata']['nameColumn'],
                 debug=False
                 )
-        if interactive:
-            # add to composites dictionary
-            composites[nuts_level] = composite
 
-        composite.to_file('{}/composites/nuts2016/{}/boundaries.shp.zip'.format(base_dir,nuts_level))
+        # add to composites dictionary
+        composites[european_zone] = composite
 
-    if interactive:
-        global validated_deims_sites
-        global deims_site_name_mappings
-        global deims_site_zone_options
+    return {
+            'metadata': metadata,
+            'boundaries': boundaries,
+            'composites': composites,
+            }
 
-        # add meta
-        validated_deims_sites[metadata['id']['suffix']] = {
-                'metadata': metadata,
-                'site_boundaries': deims_site_boundaries,
-                'composites': composites,
-                }
 
-        deims_site_name_mappings[metadata['displayName']] = metadata['id']['suffix']
-        # add sites
-        deims_site_zone_options[metadata['id']['suffix']] = {
-                validated_zones[nuts_level]['displayName']: nuts_level for nuts_level in list(nuts_zones)
-                }
+def generateMissingComposites(deims_root,validated_deims_sites,validated_zones):
+    """Run this to add any missing shapefiles"""
+    # possibly add some validate mode where no action is taken
+    #
+    # accepts two dictionaries, intended to be the output of loadAllInfo
+    # doesn't check for correctness and bases results on this
+    european_zones = [x for x in list(validated_zones) if validated_zones[x]['nat_zone_group'] is None]
+
+    for site in list(validated_deims_sites):
+        # check all european-wides are available
+        missing_euros = [x for x in european_zones if x not in validated_deims_sites[site]['composites']]
+        # if national zones, check they're all available
+        missing_nationals = []
+        if validated_deims_sites[site]['metadata']['nationalZonesAvailable']:
+            national_zones = [x for x in list(validated_zones) if validated_zones[x]['nat_zone_group']==validated_deims_sites[site]['metadata']['nationalZoneDir']]
+            missing_nationals = [x for x in national_zones if x not in validated_deims_sites[site]['composites']]
+
+        # create and save missing composites
+        # could later return updated dict(s) instead
+        if missing_euros:
+            print(f'site {site} is missing european zones {missing_euros}')
+            for x in missing_euros:
+                composite = decomposeSite(
+                    validated_deims_sites[site]['boundaries'],
+                    validated_zones[x]['boundaries'],
+                    validated_zones[x]['metadata']['IDColumn'],
+                    validated_zones[x]['metadata']['nameColumn'],
+                    debug=False
+                    )
+                composite_path = f'{deims_root}/{validated_deims_sites[site]["metadata"]["id"]["suffix"]}/composites/{x}'
+                os.makedirs(composite_path,exist_ok=True)
+                composite.to_file(f'{composite_path}/boundaries.shp.zip')
+
+        if missing_nationals:
+            print(f'site {site} is missing national zones {missing_nationals}')
+            for x in missing_nationals:
+                composite = decomposeSite(
+                    validated_deims_sites[site]['boundaries'],
+                    validated_zones[x]['boundaries'],
+                    validated_zones[x]['metadata']['IDColumn'],
+                    validated_zones[x]['metadata']['nameColumn'],
+                    debug=False
+                    )
+                composite_path = f'{deims_root}/{validated_deims_sites[site]["metadata"]["id"]["suffix"]}/composites/{x}'
+                os.makedirs(composite_path,exist_ok=True)
+                composite.to_file(f'{composite_path}/boundaries.shp.zip')
+
+    print('done')

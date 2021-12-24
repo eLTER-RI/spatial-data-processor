@@ -1,0 +1,5 @@
+{
+	"displayName": "LAU 2020 regions",
+	"IDColumn": "GISCO_ID",
+	"nameColumn": "LAU_NAME"
+}

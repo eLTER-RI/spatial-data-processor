@@ -14,6 +14,8 @@ options(shiny.maxRequestSize=2*1024^3)
 use_virtualenv("./reticulate-venv")
 source_python("analyse.py")
 source_python("shapefiles/scripts/shapefile-generator.py")
+source_python("shapefiles/scripts/directoryparse.py")
+source_python("interface.py")
 
 # shiny
 ui <- fluidPage(
@@ -112,7 +114,7 @@ server <- function(input,output){
                 #selected = "",
                 choices = all_reactive_values$wf1_inputs,
                 multiple = FALSE
-            )   
+            )
         }
     })
 
@@ -212,7 +214,7 @@ server <- function(input,output){
 
     # add new DEIMS sites on user input
     observeEvent(input$new_site, {
-        addDeimsSite(input$new_deims_ID,TRUE,FALSE)
+        addSiteToInterface(input$new_deims_ID)
         all_reactive_values$sites <- py$deims_site_name_mappings
         all_reactive_values$zones <- py$deims_site_zone_options
     })
