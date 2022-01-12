@@ -1,18 +1,23 @@
-# this basic script is designed to create a single output csv
-# of random data to make it easy to test the interface without
-# constantly having to upload new datasets.
-#
-# it reads all the shapefiles available for a site/sites,
-# concatenates every 'zone_id' into its first column and adds
-# three columns of random data (integer, 1-10) to be plotted
+"""This basic script creates a single output csv of random data to make
+it easy to test the interface without constantly having to upload new
+datasets.
 
-import geopandas as gpd
-import pandas as pd
+It reads all the composites available for a site, concatenates every
+'zone_id' into its first column and adds three columns of random data
+(integer, 1-10) to be plotted.
+"""
+
+
 import os
 from random import randint
 
+import geopandas as gpd
+import pandas as pd
+
+
 # list all directories within a deims site and remove
 # files/directories we aren't interested in
+# TODO: make this accept user input and update for new structure
 dirs = os.listdir('../deims/cairngorms')
 dirs.remove('raw')
 dirs.remove('scottish-national-sources.txt')

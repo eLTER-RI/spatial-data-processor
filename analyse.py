@@ -1,3 +1,11 @@
+"""Worfklows to filter data relevant for geographic sites.
+
+Exports:
+    - cropRasterDataset for cropping raster data to site boundaries
+    - aggregateTabularDataset for filtering rows of tabular data
+"""
+
+
 import os
 import json
 
@@ -11,9 +19,16 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 # WORKFLOW DEFINITIONS
-# "gridded" workflow
-# this raster dataset (1) to this shapefile boundary (2)
-def cropRasterDataset(dataset,region,plot_data_type):
+def cropRasterDataset(dataset,region,dataset_title):
+    """wf1: raster workflow - extract a subset of a raster dataset.
+
+    dataset: filepath to a raster dataset to open and crop (str)
+    region: region to extract from dataset (GeoDataFrame)
+    dataset_title: name of data to use in plot title (str)
+
+    Writes output to /tmp/masked.tif and /tmp/plot.png, returns 0.
+    """
+
     # setup
     # load user data
     active_dataset = rio.open(dataset)
@@ -47,7 +62,7 @@ def cropRasterDataset(dataset,region,plot_data_type):
         dest.close()
 
     # populate and save graph
-    ax.set_title(f'{plot_data_type} data cropped to {site_name}')
+    ax.set_title(f'{dataset_title} data cropped to {site_name}')
     ax.imshow(out_image[0],norm=colors.LogNorm(vmin=1e-2, vmax=200))
     fig.savefig('/tmp/crop.png')
     plt.close(fig)
@@ -55,9 +70,24 @@ def cropRasterDataset(dataset,region,plot_data_type):
     return 0
 
 
-# "non-gridded" workflow
-# this tabular dataset (1) to this site (2) divided by these boundaries (3)
 def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
+    """wf2: tabular workflow - extract rows from a table relating to a
+    DEIMS site.
+
+    Requires two dictionaries to be available as free variables,
+    validated_deims_sites and validated_zones. These should contain
+    data about available DEIMS sites and administrative zones in a
+    certain format - see directoryparse.loadAllInfo.
+
+    dataset: tabular dataset to filter (pandas.DataFrame)
+    deims_site: DEIMS site to filter data by (str)
+    admin_zones: divided by these boundaries (str)
+    plot_key: dataset column to plot (str)
+    plot_title: name of data to use in plot title (str)
+
+    Writes plot to /tmp/plot.png and returns pandas.DataFrame.
+    """
+
     # select composite deims/zones shapefile data and metadata
     composite_site = validated_deims_sites[deims_site]['composites'][admin_zones]
     site_name = validated_deims_sites[deims_site]['metadata']['displayName']
