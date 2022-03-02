@@ -100,11 +100,30 @@ ui <- fluidPage(
                     multiple = FALSE
                 )
             ),
-            # common to both workflows
-            helpText("3: select DEIMS site to cookie-cut"),
-            uiOutput("deims_site_picker"),
-            textInput("new_deims_ID","Add a new site by its DEIMS ID"),
-            actionButton("new_site", "Add")
+            conditionalPanel(
+                condition = "input.active_workflow !== 'FLUXNET (experimental)'",
+                # common to first two workflows
+                helpText("3: select DEIMS site to cookie-cut"),
+                uiOutput("deims_site_picker"),
+                textInput("new_deims_ID","Add a new site by its DEIMS ID"),
+                actionButton("new_site", "Add")
+            ),
+            conditionalPanel(
+                condition = "input.active_workflow === 'FLUXNET (experimental)'",
+                # common to first two workflows
+                helpText("3: select LTER site to cookie-cut"),
+                selectInput(
+                    inputId = "fluxnet_site",
+                    label = "eLTER/FLUXNET site",
+                    choices = c(
+                        "Stubai" = "FLX_AT-Neu_FLUXNET2015_FULLSET_DD_2002-2012_1-4.csv",
+                        "Rollesbroich" = "FLX_DE-RuR_FLUXNET2015_FULLSET_DD_2011-2014_1-4.csv",
+                        "Hyytiälä" = "FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4.csv",
+                        "Torgnon Larch Forest" = "FLX_IT-Tor_FLUXNET2015_FULLSET_DD_2008-2014_2-4.csv"
+                    ),
+                    multiple = FALSE
+                )
+            )
         ),
         mainPanel(
             # first workflow
@@ -431,6 +450,8 @@ server <- function(input,output){
 
     # execute wf3, returning tibble for download
     wf3_output <- reactive({
+        fluxnet_filename <- paste0("input/fluxnet/",input$fluxnet_site)
+        fluxnet_data <- read_csv(fluxnet_filename)
         filterColumns(fluxnet_data,input$deims_site,input$wf3_variable)
     })
 
