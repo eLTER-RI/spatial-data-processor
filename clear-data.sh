@@ -7,3 +7,4 @@ rm -fv input/wf1/*
 rm -fv input/wf2/*
 rm -fv output/wf1/*
 rm -fv output/wf2/*
+rm -fv output/fluxnet/*
