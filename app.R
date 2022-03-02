@@ -72,7 +72,31 @@ ui <- fluidPage(
                 selectInput(
                     inputId = "wf3_variable",
                     label = "Variable",
-                    choices = c("TA_F","P_F"),
+                    choices = c(
+                        "TA_F_MDS",
+                        "TA_F_MDS_QC",
+                        "SW_IN_F_MDS",
+                        "SW_IN_F_MDS_QC",
+                        "VPD_F_MDS",
+                        "VPD_F_MDS_QC",
+                        "P",
+                        "P_F_QC",
+                        "WS",
+                        "WS_F_QC",
+                        "RH",
+                        "SWC_F_MDS_1",
+                        "SWC_F_MDS_1_QC",
+                        "LE_F_MDS",
+                        "LE_F_MDS_QC",
+                        "NEE_VUT_REF",
+                        "NEE_VUT_REF_QC",
+                        "NEE_VUT_USTAR50",
+                        "NEE_VUT_USTAR50_QC",
+                        "RECO_NT_VUT_REF",
+                        "RECO_NT_VUT_USTAR50",
+                        "GPP_NT_VUT_REF",
+                        "GPP_NT_VUT_USTAR50"
+                        ),
                     multiple = FALSE
                 )
             ),
