@@ -105,8 +105,17 @@ def filterColumns(dataset,deims_site,variables):
     # metadata
     site_name = validated_deims_sites[deims_site]['metadata']['displayName']
     
+    # add any _QC columns to output dataframe
+    output_variables = variables.copy()
+    # using indexes instead of `for x in output_variables` is convenient when .inserting,
+    # but requires working right-to-left to preserve indexes after insertions
+    for x in range(len(output_variables)-1,-1,-1):
+        QC_name = output_variables[x]+"_QC"
+        if QC_name in dataset.columns:
+            output_variables.insert(x+1,QC_name)
+
     # keep just TIMESTAMP and our chosen variables
-    filtered_dataset = dataset.filter(['TIMESTAMP']+variables)
+    filtered_dataset = dataset.filter(['TIMESTAMP']+output_variables)
     
     # plot
     fig, ax = plt.subplots()
