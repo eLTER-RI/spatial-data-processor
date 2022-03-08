@@ -91,19 +91,28 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
         return merged_dataset.drop(columns='geometry')
 
 # FLUXNET workflow
-# for this site (1), take this variable (later many) (2)
+# for this site (1), take these variables (2)
 # actually, it's possible that the dataset and site are one and the same here.
-def filterColumns(dataset,deims_site,variable):
+def filterColumns(dataset,deims_site,variables):
+    # shiny multiselects default to empty, so we prevent annoying error messages here
+    if not variables:
+        return 1
+    
+    # shiny multiselects are passed as a string when one choice is made, list otherwise
+    if type(variables) == str:
+        variables = [variables]
+    
     # metadata
     site_name = validated_deims_sites[deims_site]['metadata']['displayName']
     
-    # keep just TIMESTAMP and our chosen variable
-    filtered_dataset = dataset.filter(["TIMESTAMP",variable])
+    # keep just TIMESTAMP and our chosen variables
+    filtered_dataset = dataset.filter(['TIMESTAMP']+variables)
     
     # plot
     fig, ax = plt.subplots()
-    ax.set_title(f'FLUXNET {variable} data from {site_name}')
-    ax.plot(filtered_dataset['TIMESTAMP'],filtered_dataset[variable])
+    ax.set_title(f'FLUXNET data from {site_name}')
+    for x in variables:
+        ax.plot(filtered_dataset['TIMESTAMP'],filtered_dataset[x])
     fig.savefig('/tmp/fluxnet.png')
     plt.close(fig)
 

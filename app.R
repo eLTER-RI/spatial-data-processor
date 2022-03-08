@@ -17,11 +17,6 @@ source_python("shapefiles/scripts/shapefile-generator.py")
 source_python("shapefiles/scripts/directoryparse.py")
 source_python("interface.py")
 
-# temporary while missing FLUXNET/ICOS data
-# commented version plots better but fails to write output
-#fluxnet_data <- read_csv("input/fluxnet/FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4.csv",col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
-fluxnet_data <- read_csv("input/fluxnet/FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4.csv")
-
 # shiny
 ui <- fluidPage(
     titlePanel("Data cookie-cutter"),
@@ -97,7 +92,7 @@ ui <- fluidPage(
                         "GPP_NT_VUT_REF",
                         "GPP_NT_VUT_USTAR50"
                         ),
-                    multiple = FALSE
+                    multiple = TRUE
                 )
             ),
             conditionalPanel(
@@ -451,7 +446,9 @@ server <- function(input,output){
     # execute wf3, returning tibble for download
     wf3_output <- reactive({
         fluxnet_filename <- paste0("input/fluxnet/",input$fluxnet_site)
-        fluxnet_data <- read_csv(fluxnet_filename)
+        # commented version plots better but fails to write output
+        #fluxnet_data <- read_csv(fluxnet_filename,col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
+        fluxnet_data <- read_csv(fluxnet_filename,na="-9999")
         filterColumns(fluxnet_data,input$deims_site,input$wf3_variable)
     })
 
@@ -520,7 +517,7 @@ server <- function(input,output){
     # save fluxnet output on user input
     observeEvent(input$save_wf3_output, {
         # take everything off input filename after first dot - foo.x.y.z becomes foo
-        unqualified_filename <- paste0("FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4","-",input$wf3_variable,".csv")
+        unqualified_filename <- paste0("FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4","-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
         qualified_filename <- paste0("output/fluxnet/",unqualified_filename)
         write_csv(wf3_output(),qualified_filename)
         all_reactive_values$wf3_outputs <- list.files("output/fluxnet/")
