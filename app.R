@@ -517,7 +517,8 @@ server <- function(input,output){
     # save fluxnet output on user input
     observeEvent(input$save_wf3_output, {
         # take everything off input filename after first dot - foo.x.y.z becomes foo
-        unqualified_filename <- paste0("FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4","-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
+        original_filename_without_extension <- strsplit(input$fluxnet_site,".",TRUE)[[1]][1]
+        unqualified_filename <- paste0(original_filename_without_extension,"-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
         qualified_filename <- paste0("output/fluxnet/",unqualified_filename)
         write_csv(wf3_output(),qualified_filename)
         all_reactive_values$wf3_outputs <- list.files("output/fluxnet/")
