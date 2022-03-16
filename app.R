@@ -107,10 +107,10 @@ ui <- fluidPage(
                     inputId = "wf3_site",
                     label = "eLTER site",
                     choices = c(
-                        "Stubai" = "FLX_AT-Neu.csv",
-                        "Rollesbroich" = "FLX_DE-RuR.csv",
-                        "Hyytiälä" = "FLX_FI-Hyy.csv",
-                        "Torgnon Larch Forest" = "FLX_IT-Tor.csv"
+                        "Stubai" = "AT-Neu",
+                        "Rollesbroich" = "DE-RuR",
+                        "Hyytiälä" = "FI-Hyy",
+                        "Torgnon Larch Forest" = "IT-Tor"
                     ),
                     multiple = FALSE
                 )
@@ -441,7 +441,7 @@ server <- function(input,output){
 
     # execute wf3, returning tibble for download
     wf3_output <- reactive({
-        wf3_filename <- paste0("input/",input$wf3_data_source,"/",input$wf3_site)
+        wf3_filename <- paste0("input/",input$wf3_data_source,"/",input$wf3_site,".csv")
         # commented version plots better but fails to write output
         #wf3_data <- read_csv(wf3_filename,col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
         wf3_data <- read_csv(wf3_filename,na="-9999")
@@ -512,15 +512,22 @@ server <- function(input,output){
 
     # save wf3 output on user input
     observeEvent(input$save_wf3_output, {
-        # take everything off input filename after first dot - foo.x.y.z becomes foo
-        original_filename_without_extension <- strsplit(input$wf3_site,".",TRUE)[[1]][1]
-        unqualified_filename <- paste0(original_filename_without_extension,"-",input$wf3_data_source,"-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
-        qualified_filename <- paste0("output/wf3/",unqualified_filename)
-        write_csv(wf3_output(),qualified_filename)
+        # prepare filenames
+        filename_root <- paste0(input$wf3_site,"-",input$wf3_data_source,"-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"))
+
+        unqualified_data_filename <- paste0(filename_root,".csv")
+        qualified_data_filename <- paste0("/tmp/",unqualified_data_filename)
+        unqualified_zip_filename <- paste0(filename_root,".zip")
+        qualified_zip_filename <- paste0("output/wf3/",unqualified_zip_filename)
+
+        # write data, metadata, then zip to output folder
+        write_csv(wf3_output(),qualified_data_filename)
+        writeFilterColumnsMetadata(input$wf3_data_source,input$wf3_site,input$wf3_variable,unqualified_data_filename)
+        zip(qualified_zip_filename,c(qualified_data_filename,"/tmp/METADATA.txt"),flags="-j")
         all_reactive_values$wf3_outputs <- list.files("output/wf3/")
         updateSelectInput(
             inputId = "wf3_download_choice",
-            selected = unqualified_filename
+            selected = unqualified_zip_filename
         )
     })
 

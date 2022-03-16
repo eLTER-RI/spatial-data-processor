@@ -126,3 +126,35 @@ def filterColumns(dataset,deims_site,variables):
     plt.close(fig)
 
     return filtered_dataset
+
+# write metadata for filterColumns
+def writeFilterColumnsMetadata(data_source,site_code,variables,output_filename):
+    # prep
+    if data_source == 'fluxnet':
+        dataset = 'FLUXNET2015'
+        with open('input/fluxnet/acknowledgement.txt') as f:
+            acknowledgement = f.read()
+    elif data_source == 'icos':
+        dataset = 'ICOS Drought2018'
+        with open('input/icos/acknowledgement.txt') as f:
+            acknowledgement = f.read()
+    
+    code_id_mapping = {
+        'AT-Neu': 'https://deims.org/324f92a3-5940-4790-9738-5aa21992511c',
+        'DE-RuR': 'https://deims.org/356417de-5a3c-429d-82c1-08a4e924ab3b',
+        'FI-Hyy': 'https://deims.org/663dac80-211d-4c19-a356-04ee0da0f0eb',
+        'IT-Tor': 'https://deims.org/4312983f-c36a-4b46-b10a-a9dea2172849',
+    }
+    
+    # here we go
+    with open('/tmp/METADATA.txt','w') as f:
+        f.write(f'''METADATA
+Workflow version: 0.1
+Workflow source: https://github.com/eLTER-RI/spatial-data-processor
+Source dataset: {dataset}
+Selected site: {site_code}, {code_id_mapping[site_code]}
+Selected variables: {variables}
+Output filename: {output_filename}
+
+ACKNOWLEDGEMENTS
+{acknowledgement}''')
