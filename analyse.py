@@ -90,7 +90,7 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     else:
         return merged_dataset.drop(columns='geometry')
 
-# FLUXNET workflow
+# FLUXNET/ICOS workflow
 # for this site (1), take these variables (2)
 # actually, it's possible that the dataset and site are one and the same here.
 def filterColumns(dataset,deims_site,variables):
@@ -119,10 +119,10 @@ def filterColumns(dataset,deims_site,variables):
     
     # plot
     fig, ax = plt.subplots()
-    ax.set_title(f'FLUXNET data from {site_name}')
+    ax.set_title(f'FLUXNET/ICOS data')
     for x in variables:
         ax.plot(filtered_dataset['TIMESTAMP'],filtered_dataset[x])
-    fig.savefig('/tmp/fluxnet.png')
+    fig.savefig('/tmp/wf3.png')
     plt.close(fig)
 
     return filtered_dataset

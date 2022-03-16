@@ -27,7 +27,7 @@ ui <- fluidPage(
             selectInput(
                 inputId = "active_workflow",
                 label = "Workflow",
-                choices = c("Mask gridded dataset","Aggregate non-gridded dataset","FLUXNET (experimental)"),
+                choices = c("Mask gridded dataset","Aggregate non-gridded dataset","FLUXNET/ICOS (experimental)"),
                 multiple = FALSE
             ),
             # first workflow
@@ -62,8 +62,14 @@ ui <- fluidPage(
             ),
             # third workflow
             conditionalPanel(
-                condition = "input.active_workflow === 'FLUXNET (experimental)'",
-                helpText("2: select variable"),
+                condition = "input.active_workflow === 'FLUXNET/ICOS (experimental)'",
+                helpText("2: select data source"),
+                selectInput(
+                    inputId = "wf3_data_source",
+                    label = "Data",
+                    choices = c("FLUXNET" = "fluxnet","ICOS" = "icos")
+                ),
+                helpText("3: select variable"),
                 selectInput(
                     inputId = "wf3_variable",
                     label = "Variable",
@@ -86,7 +92,7 @@ ui <- fluidPage(
                 )
             ),
             conditionalPanel(
-                condition = "input.active_workflow !== 'FLUXNET (experimental)'",
+                condition = "input.active_workflow !== 'FLUXNET/ICOS (experimental)'",
                 # common to first two workflows
                 helpText("3: select DEIMS site to cookie-cut"),
                 uiOutput("deims_site_picker"),
@@ -94,17 +100,17 @@ ui <- fluidPage(
                 actionButton("new_site", "Add")
             ),
             conditionalPanel(
-                condition = "input.active_workflow === 'FLUXNET (experimental)'",
+                condition = "input.active_workflow === 'FLUXNET/ICOS (experimental)'",
                 # common to first two workflows
                 helpText("3: select LTER site to cookie-cut"),
                 selectInput(
-                    inputId = "fluxnet_site",
-                    label = "eLTER/FLUXNET site",
+                    inputId = "wf3_site",
+                    label = "eLTER site",
                     choices = c(
-                        "Stubai" = "FLX_AT-Neu_FLUXNET2015_FULLSET_DD_2002-2012_1-4.csv",
-                        "Rollesbroich" = "FLX_DE-RuR_FLUXNET2015_FULLSET_DD_2011-2014_1-4.csv",
-                        "Hyytiälä" = "FLX_FI-Hyy_FLUXNET2015_FULLSET_DD_1996-2014_1-4.csv",
-                        "Torgnon Larch Forest" = "FLX_IT-Tor_FLUXNET2015_FULLSET_DD_2008-2014_2-4.csv"
+                        "Stubai" = "FLX_AT-Neu.csv",
+                        "Rollesbroich" = "FLX_DE-RuR.csv",
+                        "Hyytiälä" = "FLX_FI-Hyy.csv",
+                        "Torgnon Larch Forest" = "FLX_IT-Tor.csv"
                     ),
                     multiple = FALSE
                 )
@@ -127,7 +133,7 @@ ui <- fluidPage(
             ),
             # third workflow
             conditionalPanel(
-                condition = "input.active_workflow === 'FLUXNET (experimental)'",
+                condition = "input.active_workflow === 'FLUXNET/ICOS (experimental)'",
                 imageOutput(outputId = "wf3_plot"),
                 actionButton("save_wf3_output", "Save data"),
                 downloadButton(
@@ -146,7 +152,7 @@ server <- function(input,output){
     wf1_initial_output_files <- list.files("output/wf1")
     wf2_initial_input_files <- list.files("input/wf2")
     wf2_initial_output_files <- list.files("output/wf2")
-    wf3_initial_output_files <- list.files("output/fluxnet")
+    wf3_initial_output_files <- list.files("output/wf3")
     all_reactive_values <- reactiveValues(
         sites = deims_site_name_mappings,
         zones = deims_site_zone_options,
@@ -319,7 +325,7 @@ server <- function(input,output){
     # render wf3 preview, triggering the workflow if needed
     output$wf3_plot <- renderImage({
         wf3_output()
-        list(src="/tmp/fluxnet.png",alt="Plot of aggregated data")
+        list(src="/tmp/wf3.png",alt="Plot of aggregated data")
     }, deleteFile = FALSE)
 
     # render options when there is wf1 input data being processed
@@ -435,11 +441,11 @@ server <- function(input,output){
 
     # execute wf3, returning tibble for download
     wf3_output <- reactive({
-        fluxnet_filename <- paste0("input/fluxnet/",input$fluxnet_site)
+        wf3_filename <- paste0("input/",input$wf3_data_source,"/",input$wf3_site)
         # commented version plots better but fails to write output
-        #fluxnet_data <- read_csv(fluxnet_filename,col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
-        fluxnet_data <- read_csv(fluxnet_filename,na="-9999")
-        filterColumns(fluxnet_data,input$deims_site,input$wf3_variable)
+        #wf3_data <- read_csv(wf3_filename,col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
+        wf3_data <- read_csv(wf3_filename,na="-9999")
+        filterColumns(wf3_data,input$deims_site,input$wf3_variable)
     })
 
     # watch for wf1 uploads and handle them
@@ -504,14 +510,14 @@ server <- function(input,output){
         )
     })
 
-    # save fluxnet output on user input
+    # save wf3 output on user input
     observeEvent(input$save_wf3_output, {
         # take everything off input filename after first dot - foo.x.y.z becomes foo
-        original_filename_without_extension <- strsplit(input$fluxnet_site,".",TRUE)[[1]][1]
-        unqualified_filename <- paste0(original_filename_without_extension,"-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
-        qualified_filename <- paste0("output/fluxnet/",unqualified_filename)
+        original_filename_without_extension <- strsplit(input$wf3_site,".",TRUE)[[1]][1]
+        unqualified_filename <- paste0(original_filename_without_extension,"-",input$wf3_data_source,"-",format(Sys.time(),"%Y-%m-%d-%H-%M-%S"),".csv")
+        qualified_filename <- paste0("output/wf3/",unqualified_filename)
         write_csv(wf3_output(),qualified_filename)
-        all_reactive_values$wf3_outputs <- list.files("output/fluxnet/")
+        all_reactive_values$wf3_outputs <- list.files("output/wf3/")
         updateSelectInput(
             inputId = "wf3_download_choice",
             selected = unqualified_filename
@@ -558,7 +564,7 @@ server <- function(input,output){
             input$wf3_download_choice
         },
         content = function(file){
-            qualified_filename <- paste0("output/fluxnet/",input$wf3_download_choice)
+            qualified_filename <- paste0("output/wf3/",input$wf3_download_choice)
             file.copy(qualified_filename,file)
         })
 
@@ -566,7 +572,7 @@ server <- function(input,output){
     output$wf3_plot_download <- downloadHandler(
         filename = "plot.png",
         content = function(file){
-            file.copy("/tmp/fluxnet.png",file)
+            file.copy("/tmp/wf3.png",file)
         })
 }
 
