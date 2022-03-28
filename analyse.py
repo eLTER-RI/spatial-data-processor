@@ -90,45 +90,42 @@ def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
     else:
         return merged_dataset.drop(columns='geometry')
 
+
 # FLUXNET/ICOS workflow
-# for this site (1), take these variables (2)
-# actually, it's possible that the dataset and site are one and the same here.
-def filterColumns(dataset,deims_site,variables):
+# for this site/data (1), take these variables (2)
+def filterColumns(dataset,input_variables):
     # shiny multiselects default to empty, so we prevent annoying error messages here
-    if not variables:
+    if not input_variables:
         return 1
     
     # shiny multiselects are passed as a string when one choice is made, list otherwise
-    if type(variables) == str:
-        variables = [variables]
-    
-    # metadata
-    site_name = validated_deims_sites[deims_site]['metadata']['displayName']
-    
-    # add any _QC columns to output dataframe
-    output_variables = variables.copy()
-    # using indexes instead of `for x in output_variables` is convenient when .inserting,
-    # but requires working right-to-left to preserve indexes after insertions
-    for x in range(len(output_variables)-1,-1,-1):
-        QC_name = output_variables[x]+"_QC"
-        if QC_name in dataset.columns:
-            output_variables.insert(x+1,QC_name)
+    if type(input_variables) == str:
+        input_variables = [input_variables]
 
-    # keep just TIMESTAMP and our chosen variables
-    filtered_dataset = dataset.filter(['TIMESTAMP']+output_variables)
+    # add _QC columns to output dataframe
+    output_variables = input_variables.copy()
+    for x in input_variables:
+        output_variables.append(x+"_QC")
+
+    # create datetime column for proper plotting
+    dataset['PARSED_TIME'] = pd.to_datetime(dataset['TIME'])
     
     # plot
     fig, ax = plt.subplots()
     ax.set_title(f'FLUXNET/ICOS data')
-    for x in variables:
-        ax.plot(filtered_dataset['TIMESTAMP'],filtered_dataset[x])
+    for x in input_variables:
+        ax.plot(dataset['PARSED_TIME'],dataset[x])
     fig.savefig('/tmp/wf3.png')
     plt.close(fig)
+    
+    # keep just TIME and our chosen variables, along with their _QC observations
+    filtered_dataset = dataset.filter(['TIME']+output_variables)
 
     return filtered_dataset
 
+
 # write metadata for filterColumns
-def writeFilterColumnsMetadata(data_source,site_code,variables,output_filename):
+def writeFilterColumnsMetadata(data_source,site_code,deims_id,variables,output_filename):
     # prep
     if data_source == 'fluxnet':
         dataset = 'FLUXNET2015'
@@ -139,20 +136,13 @@ def writeFilterColumnsMetadata(data_source,site_code,variables,output_filename):
         with open('input/icos/acknowledgement.txt') as f:
             acknowledgement = f.read()
     
-    code_id_mapping = {
-        'AT-Neu': 'https://deims.org/324f92a3-5940-4790-9738-5aa21992511c',
-        'DE-RuR': 'https://deims.org/356417de-5a3c-429d-82c1-08a4e924ab3b',
-        'FI-Hyy': 'https://deims.org/663dac80-211d-4c19-a356-04ee0da0f0eb',
-        'IT-Tor': 'https://deims.org/4312983f-c36a-4b46-b10a-a9dea2172849',
-    }
-    
     # here we go
     with open('/tmp/METADATA.txt','w') as f:
         f.write(f'''METADATA
 Workflow version: 0.1
 Workflow source: https://github.com/eLTER-RI/spatial-data-processor
 Source dataset: {dataset}
-Selected site: {site_code}, {code_id_mapping[site_code]}
+Selected site: {site_code}, {deims_id}
 Selected variables: {variables}
 Output filename: {output_filename}
 

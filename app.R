@@ -5,6 +5,10 @@ library(shiny)
 library(reticulate)
 library(readr)
 library(readxl)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
 
 # set global shiny options
 # use powers of 1024 for kilo/Mega/...bytes
@@ -16,6 +20,58 @@ source_python("analyse.py")
 source_python("shapefiles/scripts/shapefile-generator.py")
 source_python("shapefiles/scripts/directoryparse.py")
 source_python("interface.py")
+
+# data
+wf3_unit_mappings <- c(
+    "TA_F_MDS" = "deg C",
+    "SW_IN_F_MDS" = "W m-2",
+    "VPD_F_MDS" = "hPa",
+    "P_F" = "mm",
+    "WS_F" = "m s-1",
+    "SWC_F_MDS_1" = "%",
+    "LE_F_MDS" = "W m-2",
+    "NEE_VUT_REF" = "µmolCO2 m-2 s-1",
+    "NEE_VUT_USTAR50" = "µmolCO2 m-2 s-1",
+    "RECO_NT_VUT_REF" = "µmolCO2 m-2 s-1",
+    "RECO_NT_VUT_USTAR50" = "µmolCO2 m-2 s-1",
+    "GPP_NT_VUT_REF" = "µmolCO2 m-2 s-1",
+    "GPP_NT_VUT_USTAR50" = "µmolCO2 m-2 s-1"
+)
+
+wf3_deims_id <- c(
+    'AT-Neu' = 'https://deims.org/324f92a3-5940-4790-9738-5aa21992511c',
+    'DE-RuR' = 'https://deims.org/356417de-5a3c-429d-82c1-08a4e924ab3b',
+    'FI-Hyy' = 'https://deims.org/663dac80-211d-4c19-a356-04ee0da0f0eb',
+    'IT-Tor' = 'https://deims.org/4312983f-c36a-4b46-b10a-a9dea2172849'
+)
+
+# helper function - see wf3-data-prep.R for more details
+convertToElterFormat <- function(dataset,deims_id,station_code,variable_names){
+    # step 3: temporarily group variables with their _QC
+    for(x in 1:length(variable_names)){
+        colname <- variable_names[x]
+        qc_colname <- sub("$","_QC",colname)
+        dataset <- dataset %>% unite({{colname}},colname,qc_colname)
+    }
+
+    # steps 4-8
+    dataset <- dataset %>%
+        # step 4: pivot from columns to rows
+        pivot_longer(variable_names,"VARIABLE","VALUE") %>%
+        # step 5: split _QC back out to FLAGQUA
+        separate(value,c("VALUE","FLAGQUA"),sep="_",convert=TRUE) %>%
+        # step 6: add hardcoded columns
+        mutate(SITE_CODE = deims_id) %>%
+        mutate(STATION_CODE = station_code) %>%
+        mutate(LEVEL = NA) %>%
+        mutate(FLAGSTA = NA) %>%
+        # step 7: create UNIT column based on VARIABLE
+        mutate(UNIT=str_replace_all(VARIABLE,wf3_unit_mappings)) %>%
+        # step 8: reorder
+        relocate(SITE_CODE,STATION_CODE,VARIABLE,LEVEL,TIME,VALUE,UNIT,FLAGQUA,FLAGSTA)
+
+    return(dataset)
+}
 
 # shiny
 ui <- fluidPage(
@@ -442,10 +498,15 @@ server <- function(input,output){
     # execute wf3, returning tibble for download
     wf3_output <- reactive({
         wf3_filename <- paste0("input/",input$wf3_data_source,"/",input$wf3_site,".csv")
-        # commented version plots better but fails to write output
-        #wf3_data <- read_csv(wf3_filename,col_types=list(col_date("%Y%m%d"),rep(col_double(),347)))
-        wf3_data <- read_csv(wf3_filename,na="-9999")
-        filterColumns(wf3_data,input$deims_site,input$wf3_variable)
+        # parse TIME as character deliberately, as date/time does not work with reticulate
+        # due to pandas using numpy's custom datetime64 type and the fact that
+        # "If a Python object of a custom class is returned then an R reference to that object is returned."
+        #
+        # see:
+        # https://pandas.pydata.org/docs/user_guide/timeseries.html
+        # https://rstudio.github.io/reticulate/articles/calling_python.html#type-conversions
+        wf3_data <- read_csv(wf3_filename,col_types="cdddddddddddddddddddddddddd")
+        filterColumns(wf3_data,input$wf3_variable)
     })
 
     # watch for wf1 uploads and handle them
@@ -521,8 +582,9 @@ server <- function(input,output){
         qualified_zip_filename <- paste0("output/wf3/",unqualified_zip_filename)
 
         # write data, metadata, then zip to output folder
-        write_csv(wf3_output(),qualified_data_filename)
-        writeFilterColumnsMetadata(input$wf3_data_source,input$wf3_site,input$wf3_variable,unqualified_data_filename)
+        output_data <- convertToElterFormat(wf3_output(),wf3_deims_id[[input$wf3_site]],input$wf3_site,input$wf3_variable)
+        write_csv(output_data,qualified_data_filename)
+        writeFilterColumnsMetadata(input$wf3_data_source,input$wf3_site,wf3_deims_id[[input$wf3_site]],input$wf3_variable,unqualified_data_filename)
         zip(qualified_zip_filename,c(qualified_data_filename,"/tmp/METADATA.txt"),flags="-j")
         all_reactive_values$wf3_outputs <- list.files("output/wf3/")
         updateSelectInput(
