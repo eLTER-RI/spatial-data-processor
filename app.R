@@ -585,7 +585,7 @@ server <- function(input,output){
         output_data <- convertToElterFormat(wf3_output(),wf3_deims_id[[input$wf3_site]],input$wf3_site,input$wf3_variable)
         write_csv(output_data,qualified_data_filename)
         writeFilterColumnsMetadata(input$wf3_data_source,input$wf3_site,wf3_deims_id[[input$wf3_site]],input$wf3_variable,unqualified_data_filename)
-        zip(qualified_zip_filename,c(qualified_data_filename,"/tmp/METADATA.txt"),flags="-j")
+        zip(qualified_zip_filename,c(qualified_data_filename,"/tmp/metadata.txt",paste0("input/",input$wf3_data_source,"/method.csv"),paste0("input/",input$wf3_data_source,"/reference.csv")),flags="-j")
         all_reactive_values$wf3_outputs <- list.files("output/wf3/")
         updateSelectInput(
             inputId = "wf3_download_choice",

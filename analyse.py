@@ -137,7 +137,7 @@ def writeFilterColumnsMetadata(data_source,site_code,deims_id,variables,output_f
             acknowledgement = f.read()
     
     # here we go
-    with open('/tmp/METADATA.txt','w') as f:
+    with open('/tmp/metadata.txt','w') as f:
         f.write(f'''METADATA
 Workflow version: 0.1
 Workflow source: https://github.com/eLTER-RI/spatial-data-processor
