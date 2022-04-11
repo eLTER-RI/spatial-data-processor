@@ -1,4 +1,4 @@
-"""Worfklows to filter data relevant for geographic sites.
+"""Workflows to filter data relevant for geographic sites.
 
 Exports:
     - cropRasterDataset for cropping raster data to site boundaries
@@ -26,7 +26,7 @@ def cropRasterDataset(dataset,region,dataset_title):
     region: region to extract from dataset (GeoDataFrame)
     dataset_title: name of data to use in plot title (str)
 
-    Writes output to /tmp/masked.tif and /tmp/plot.png, returns 0.
+    Writes output to /tmp/masked.tif and /tmp/crop.png, returns 0.
     """
 
     # setup
