@@ -20,11 +20,15 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # WORKFLOW DEFINITIONS
 def cropRasterDataset(dataset,region,dataset_title):
-    """wf1: raster workflow - extract a subset of a raster dataset.
+    """wf1 - extract a subset of a raster dataset.
 
     dataset: filepath to a raster dataset to open and crop (str)
     region: region to extract from dataset (GeoDataFrame)
     dataset_title: name of data to use in plot title (str)
+
+    Requires a dictionary validated_deims_sites to be available as a
+    free variable.  It should contain data about available DEIMS sites
+    in a certain format - see directoryparse.loadAllInfo.
 
     Writes output to /tmp/masked.tif and /tmp/crop.png, returns 0.
     """
@@ -71,19 +75,18 @@ def cropRasterDataset(dataset,region,dataset_title):
 
 
 def aggregateTabularDataset(dataset,deims_site,admin_zones,plot_key,plot_title):
-    """wf2: tabular workflow - extract rows from a table relating to a
-    DEIMS site.
-
-    Requires two dictionaries to be available as free variables,
-    validated_deims_sites and validated_zones. These should contain
-    data about available DEIMS sites and administrative zones in a
-    certain format - see directoryparse.loadAllInfo.
+    """wf2 - extract rows from a table relating to a DEIMS site.
 
     dataset: tabular dataset to filter (pandas.DataFrame)
     deims_site: DEIMS site to filter data by (str)
     admin_zones: divided by these boundaries (str)
     plot_key: dataset column to plot (str)
     plot_title: name of data to use in plot title (str)
+
+    Requires two dictionaries to be available as free variables,
+    validated_deims_sites and validated_zones. These should contain
+    data about available DEIMS sites and administrative zones in a
+    certain format - see directoryparse.loadAllInfo.
 
     Writes plot to /tmp/plot.png and returns pandas.DataFrame.
     """
