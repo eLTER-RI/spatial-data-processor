@@ -1,3 +1,13 @@
+"""Module for moving application data to/from filesystem.
+
+Exports:
+    - bootstrapDeimsDirectory to create directories
+    - saveDeimsSite to save data to a directory
+    - loadDirectory to load data from a directory
+    - loadAllInfo to load multiple directories into useable dictionaries
+"""
+
+
 import os
 import json
 
@@ -6,6 +16,12 @@ import geopandas as gpd
 
 # helper
 def bootstrapDeimsDirectory(deims_site_id_suffix,deims_dir):
+    """Creates a parent directory to save DEIMS site data to.
+
+    deims_site_id_suffix: used as name of new parent directory (str)
+    deims_dir: directory in which to create new directory (str)
+    """
+
     ### TODO: test existence of deims_dir, throw error
     ### TODO: test deims suffix for validity
 
@@ -18,6 +34,14 @@ def bootstrapDeimsDirectory(deims_site_id_suffix,deims_dir):
 
 # utility
 def saveDeimsSite(deims_site,base_dir):
+    """Save a DEIMS site in a directory of sites.
+
+    deims_site: site to save (dict of 'metadata', 'boundaries' and
+      'composites')
+    base_dir: directory in which to save - note that when saving
+      multiple sites, use the same base_dir each time (str)
+    """
+
     # do we need base dir to exist? Probably not
     target_dir = bootstrapDeimsDirectory(deims_site['metadata']['id']['suffix'],base_dir)
 
@@ -36,12 +60,17 @@ def saveDeimsSite(deims_site,base_dir):
 
 # utility
 def loadDirectory(directory,dir_type,required_metadata,boundaries_required,nat_zone_group=None):
-    """Load a directory as a DEIMS site or zone"""
-    # directory: str but whatever os.path.normpath takes really
-    # dir_type: 'deims', 'nat-zone', 'eu-zone'
-    # required_metadata: list strs
-    # boundaries_required: bool
-    #
+    """Load a directory as a DEIMS site or administrative zone.
+
+    directory: directory to load (str/path)
+    dir_type: type of directory to load, one of 'deims', 'nat-zone',
+      'eu-zone'
+    required_metadata: keys which must be present in 'metadata.json'
+      (list(str))
+    boundaries_required: whether a shapfile of boundaries must exist
+      (bool)
+    """
+
     # PREP
     if dir_type not in ['deims','nat-zone','eu-zone']:
         print('Invalid dir_type')
@@ -114,7 +143,13 @@ def loadDirectory(directory,dir_type,required_metadata,boundaries_required,nat_z
 
 # useful wrapper
 def loadAllInfo(sf_root):
-    """Run this on app startup to compile available stuff into dicts"""
+    """Parse and load a directory according to application logic and
+    return two dicts, DEIMS sites and administrative zones.
+
+    sf_root: directory in which to search - for expected structure see
+      shapefiles/ (str)
+    """
+
     validated_zones = {}
     validated_deims_sites = {}
 

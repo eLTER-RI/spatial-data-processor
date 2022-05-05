@@ -1,3 +1,16 @@
+"""Functions to generate new DEIMS sites and composites.
+
+Exports:
+    - decomposeSite to generate a site/zone composite
+    - fetchDeimsSiteMetadata to fetch site metadata from deims.org
+    - fetchDeimsSiteBoundaries to fetch site boundaries from deims.org
+    - getNewDeimsSite to generate a complete DEIMS site (with
+        composites) from deims.org
+    - generateMissingComposites to check sites for missing composites
+        and generate new ones as needed
+"""
+
+
 import os
 import json
 import urllib.request
@@ -7,20 +20,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# this function expects two GeoDataFrames and two strings and returns a GeoDataFrame
-# representing the decomposition of the first GDF by the elements of the second gdf.
-#
-# ltser_site - the gdf to decompose
-# admin_zones - a gdf of "admin zones" describing the areas to break ltser_site into
-# zone_id - the column name of the zone ID in admin_zones
-# zone_name - the column name of the zone name in admin_zones
-def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
+def decomposeSite(deims_site, admin_zones, zone_id, zone_name, debug=False):
+    """Decompose a site by administrative zones.
+
+    deims_site: site to decompose (gpd.GeoDataFrame)
+    admin_zones: admin zones/regions to break deims_site into (gpd.GeoDataFrame)
+    zone_id: column name of the zone ID in admin_zones (str)
+    zone_name: column name of the zone name in admin_zones (str)
+    debug: whether or not to plot the results for visual checking (bool)
+
+    Returns the resulting GDF.
+    """
+
     # convert CRS of dataset to match admin zones
-    # this will be the CRS of the output gdf
-    ltser_site = ltser_site.to_crs(admin_zones.crs)
+    # this will be the CRS of the output GDF
+    deims_site = deims_site.to_crs(admin_zones.crs)
 
     # check which zones intersect the LTSER site
-    ltser_zones = gpd.overlay(ltser_site,admin_zones,how='intersection')
+    ltser_zones = gpd.overlay(deims_site,admin_zones,how='intersection')
 
     # add original zones for area comparison, setting correct geometry
     # this is necessary to align the comparison geometry correctly:
@@ -34,7 +51,7 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
     full_areas = gpd.GeoSeries(ltser_zones['geometry_y'])
     ltser_zones['intersection_ratio'] = ltser_zones.geometry.area/full_areas.area
 
-    # construct gdf of cropped zones + ratio of area intersection
+    # construct GDF of cropped zones + ratio of area intersection
     gdf_out = gpd.GeoDataFrame(
         {
             'zone_id': ltser_zones[zone_id].astype('string'),
@@ -56,7 +73,7 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
         ax.set_axis_off()
         ax.set_title('Zones (blue) intersecting LTSER site (red)')
         gdf_out.plot(ax=ax)
-        ltser_site.boundary.plot(color='r',ax=ax)
+        deims_site.boundary.plot(color='r',ax=ax)
 
         # drop debug_geometry column so output is identical to non-debug
         gdf_out.drop(columns='debug_geometry',inplace=True)
@@ -68,6 +85,11 @@ def decomposeSite(ltser_site, admin_zones, zone_id, zone_name, debug=False):
 
 # helper
 def fetchDeimsSiteMetadata(deims_site_id_suffix):
+    """Fetch full site metadata from the DEIMS-SDR API.
+
+    deims_site_id_suffix: ID to query (str)
+    """
+
     base_url = 'https://deims.org/api/sites/{}'
 
     # fetch and parse metadata
@@ -87,6 +109,11 @@ def fetchDeimsSiteMetadata(deims_site_id_suffix):
 
 # helper
 def fetchDeimsSiteBoundaries(deims_site_id_suffix):
+    """Fetch site boundaries from DEIMS-SDR GeoServer.
+
+    deims_site_id_suffix: ID to query (str)
+    """
+
     # even though IDs are given with a prefix it seems unlikely
     # this prefix will change
     deims_site_id_string = f'https://deims.org/{deims_site_id_suffix}'
@@ -100,6 +127,20 @@ def fetchDeimsSiteBoundaries(deims_site_id_suffix):
 
 # complete
 def getNewDeimsSite(deims_site_id_suffix,debug=False):
+    """Fetch a full DEIMS site from DEIMS-SDR and generate composites.
+
+    Requires a dictionary to be available as a free variable,
+    validated_zones.  This should contain data about available
+    administrative zones in a certain format - see
+    directoryparse.loadAllInfo.
+
+    deims_site_id_suffix: ID to query (str)
+    debug: whether to show extra information (bool)
+
+    Returns the new site as a dict of 'metadata', 'boundaries' and
+    'composites'.
+    """
+
     # TODO: incorporate out-of-repo DEIMS module for validation and fetching functionality
     if deims_site_id_suffix.startswith('https://deims.org/'):
         deims_site_id_suffix = deims_site_id_suffix[18:]
@@ -135,11 +176,19 @@ def getNewDeimsSite(deims_site_id_suffix,debug=False):
 
 
 def generateMissingComposites(deims_root,validated_deims_sites,validated_zones):
-    """Run this to add any missing shapefiles"""
-    # possibly add some validate mode where no action is taken
+    """Use dicts to check sites for missing composites and create.
+
+    Accepts two dictionaries, intended to be the output of loadAllInfo,
+    without checking for correctness, i.e. consistency with filesystem.
+
+    deims_root: directory of deims sites in which to locate composite
+      directories when saving (str)
+    validated_deims_sites: deims sites to check (dict)
+    validated_zones: available zones to use (dict)
+    """
+
+    # TODO: possibly add some validate mode where no action is taken
     #
-    # accepts two dictionaries, intended to be the output of loadAllInfo
-    # doesn't check for correctness and bases results on this
     european_zones = [x for x in list(validated_zones) if validated_zones[x]['nat_zone_group'] is None]
 
     for site in list(validated_deims_sites):

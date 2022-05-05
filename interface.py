@@ -1,18 +1,26 @@
-"""Intended for use by Shiny only. Relies on implicit imports."""
+"""Intended for use by Shiny only - relies on implicit imports."""
+
 
 # read what DEIMS sites and zones are available from filesystem
 validated_zones,validated_deims_sites = loadAllInfo('shapefiles')
 
+
 # construct metadata for interface and workflows
+# maps available site friendly names to IDs, the order required for shiny selectInputs
 deims_site_name_mappings = {
         validated_deims_sites[x]['metadata']['displayName']: x for x in list(validated_deims_sites)
         }
+
+# maps available site IDs to dict mapping available site composite friendly names to IDs
+# enables discovering for each site what composites are available and how should they be presented
+# essentially a dict of subdicts, where each subdict is structured the same as deims_site_name_mappings
 deims_site_zone_options = {
         x: {
             validated_zones[y]['metadata']['displayName']: y for y in list(validated_deims_sites[x]['composites'])
             } for x in list(validated_deims_sites)
         }
 
+# wrapper function to add site and update dictionaries in one go
 def addSiteToInterface(deims_site_id_suffix):
     global validated_deims_sites
     global deims_site_name_mappings
