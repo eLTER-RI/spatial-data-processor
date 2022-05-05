@@ -1,7 +1,7 @@
 # eLTER cookie-cutting prototype FAQs
 *What is this?*
 
-A collection of workflows to “cookie-cut” data by extracting only the data relevant to a DEIMS site.
+A collection of workflows to "cookie-cut" data by extracting only the data relevant to a DEIMS site.
 There's also a web-based user interface to make using the workflows easier for non-programmers.
 
 *Which DEIMS sites does it work with?*
@@ -36,9 +36,9 @@ See [the wf2 reference documentation](../reference/wf2.md), "Technical descripti
 
 *How can I access a working app?*
 
-The app has been developed in UKCEH’s DataLabs platform where it can be accessed by anybody.
+The app has been developed in UKCEH's DataLabs platform where it can be accessed by anybody.
 To do so, first create an account at [https://datalab.datalabs.ceh.ac.uk/](https://datalab.datalabs.ceh.ac.uk/).
 Once you have an account, email wilbol@ceh.ac.uk and ask to be added to the eLTER PLUS project.
 Once you have been added to the project, the app will be available.
-The code for the app is all on GitHub at [https://github.com/eLTER-RI/spatial-data-processor](https://github.com/eLTER-RI/spatial-data-processor), so you’re also welcome to look at it, modify it and run it on your own infrastructure.
+The code for the app is all on GitHub at [https://github.com/eLTER-RI/spatial-data-processor](https://github.com/eLTER-RI/spatial-data-processor), so you're also welcome to look at it, modify it and run it on your own infrastructure.
 Pull requests are welcome.
