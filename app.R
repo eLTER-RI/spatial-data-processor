@@ -401,7 +401,7 @@ server <- function(input,output){
         original_filename_without_extension <- strsplit(input$wf2_selected_file,".",TRUE)[[1]][1]
         unqualified_filename <- paste0(original_filename_without_extension,"-",input$deims_site,"-",input$data_grouping,".csv")
         qualified_filename <- paste0("output/wf2/",unqualified_filename)
-        write_csv(wf2_output(),qualified_filename)
+        write_excel_csv(wf2_output(),qualified_filename)
         all_reactive_values$wf2_outputs <- list.files("output/wf2")
         updateSelectInput(
             inputId = "wf2_download_choice",
