@@ -194,11 +194,12 @@ server <- function(input,output){
 
     # populates available zones based on site by reading python metadata
     output$wf2_site_zone_picker <- renderUI({
-        selectInput(
+        selectizeInput(
             inputId = "data_grouping",
             label = "Zones to extract",
             choices = all_reactive_values$zones[[input$deims_site]],
-            multiple = FALSE
+            multiple = FALSE,
+            options = list(sortField="value")
         )
     })
 
